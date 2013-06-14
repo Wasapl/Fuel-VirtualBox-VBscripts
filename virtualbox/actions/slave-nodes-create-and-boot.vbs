@@ -25,14 +25,14 @@ for idx = 1 to cluster_size-1
 
 	create_vm name, host_nic_name(0), vm_slave_cpu_cores, vm_ram, vm_slave_disk_mb
 
-    ' Add additional NICs to VM
-    
-    add_nic_to_vm name, 2, host_nic_name(1)
-    add_nic_to_vm name, 3, host_nic_name(2)
+	' Add additional NICs to VM
+	
+	add_nic_to_vm name, 2, host_nic_name(1)
+	add_nic_to_vm name, 3, host_nic_name(2)
 
-    ' Add additional disks to VM
-    add_disk_to_vm name, 1, vm_slave_second_disk_mb
-    add_disk_to_vm name, 2, vm_slave_third_disk_mb
+	' Add additional disks to VM
+	add_disk_to_vm name, 1, vm_slave_second_disk_mb
+	add_disk_to_vm name, 2, vm_slave_third_disk_mb
 
 	enable_network_boot_for_vm name 
 	start_vm name

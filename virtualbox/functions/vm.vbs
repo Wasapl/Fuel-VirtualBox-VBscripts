@@ -181,15 +181,15 @@ end Function
 ' ret = create_vm("foo", "VirtualBox Host-Only Ethernet Adapter #8" ,1 , 512, 8192)
 
 Function add_nic_to_vm(name, id, nic) 
-    WScript.echo "Adding NIC to """ + name + """ and bridging with host NIC " + nic + "..."
+	WScript.echo "Adding NIC to """ + name + """ and bridging with host NIC " + nic + "..."
 	dim cmd
-    ' Configure network interfaces
-    'VBoxManage modifyvm $name --nic${id} hostonly --hostonlyadapter${id} $nic --nictype${id} Am79C973 --cableconnected${id} on --macaddress${id} auto
-    cmd = " modifyvm """ + name + """ --nic" & id & " hostonly --hostonlyadapter" & id & " """ & nic & """ --nictype" & id & " Am79C973 --cableconnected" & id & " on --macaddress" & id & " auto"
-    call_VBoxManage cmd
-    'VBoxManage controlvm $name setlinkstate${id} on
-    cmd = " controlvm """ + name + """ setlinkstate" & id & " on"
-    call_VBoxManage cmd
+	' Configure network interfaces
+	'VBoxManage modifyvm $name --nic${id} hostonly --hostonlyadapter${id} $nic --nictype${id} Am79C973 --cableconnected${id} on --macaddress${id} auto
+	cmd = " modifyvm """ + name + """ --nic" & id & " hostonly --hostonlyadapter" & id & " """ & nic & """ --nictype" & id & " Am79C973 --cableconnected" & id & " on --macaddress" & id & " auto"
+	call_VBoxManage cmd
+	'VBoxManage controlvm $name setlinkstate${id} on
+	cmd = " controlvm """ + name + """ setlinkstate" & id & " on"
+	call_VBoxManage cmd
 end Function
 
 function add_disk_to_vm(vm_name, port, disk_mb) 
@@ -198,16 +198,16 @@ function add_disk_to_vm(vm_name, port, disk_mb)
 	vm_path = fso.BuildPath(vm_base_path, vm_name) 
 	vm_disk_path = fso.BuildPath(vm_path, vm_name) 
 	
-    wscript.echo "Adding disk to """ + vm_name + """, with size " & disk_mb & " Mb..."
+	wscript.echo "Adding disk to """ + vm_name + """, with size " & disk_mb & " Mb..."
 	dim cmd
-    'VBoxManage createhd --filename "$vm_disk_path/$disk_name" --size $disk_mb --format VDI
-    cmd = " createhd --filename """ + vm_disk_path + """ --size " & disk_mb & " --format VDI"
-    WScript.echo cmd
-    call_VBoxManage cmd
-    'VBoxManage storageattach $vm_name --storagectl 'SATA' --port $port --device 0 --type hdd --medium "$vm_disk_path/$disk_filename"
-    cmd = " storageattach """ + vm_name + """ --storagectl ""SATA"" --port " & port & " --device 0 --type hdd --medium """ + vm_disk_path + ".vdi"" "
-    WScript.echo cmd
-    call_VBoxManage cmd
+	'VBoxManage createhd --filename "$vm_disk_path/$disk_name" --size $disk_mb --format VDI
+	cmd = " createhd --filename """ + vm_disk_path + """ --size " & disk_mb & " --format VDI"
+	WScript.echo cmd
+	call_VBoxManage cmd
+	'VBoxManage storageattach $vm_name --storagectl 'SATA' --port $port --device 0 --type hdd --medium "$vm_disk_path/$disk_filename"
+	cmd = " storageattach """ + vm_name + """ --storagectl ""SATA"" --port " & port & " --device 0 --type hdd --medium """ + vm_disk_path + ".vdi"" "
+	WScript.echo cmd
+	call_VBoxManage cmd
 end function
 
 Function delete_vm (name)
