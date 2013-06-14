@@ -29,4 +29,4 @@ function Find_And_Replace(strFilename, strFind, strReplace)
     outputFile.Close
     Set outputFile = Nothing
 end function 
-'Find_And_Replace "..\config.vbs", "hostonly_interface_name=.+$", "hostonly_interface_name=""shitty shit"""
+'Find_And_Replace "..\config.vbs", "host_nic_name\(0\) = .+$", "hostonly_interface_name=""shitty shit"""

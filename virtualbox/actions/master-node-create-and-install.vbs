@@ -20,7 +20,8 @@ name = vm_name_prefix + "master"
 if is_vm_present(name) then
 	delete_vm name
 end if
-create_vm name, hostonly_interface_name, vm_master_cpu_cores, vm_master_memory_mb, vm_master_disk_mb
+create_vm name, host_nic_name(0), vm_master_cpu_cores, vm_master_memory_mb, vm_master_disk_mb
+add_nic_to_vm name, 2, host_nic_name(1)
 mount_iso_to_vm name, iso_path
 
 ' Start virtual machine with the master node

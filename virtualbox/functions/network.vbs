@@ -15,6 +15,7 @@ function is_hostonly_interface_present(name)
 end function
 
 function create_hostonly_interface(byref name, ip, mask) 
+    wscript.echo "Creating host-only interface (name ip netmask): " & name  & " " & ip & " " & mask
 	' Exit if the interface already exists (deleting it here is not safe, as VirtualBox creates hostonly adapters sequentially)
 	if is_hostonly_interface_present (name) then
 		wscript.echo "Fatal error. Interface " + name + " cannot be created because it already exists."
@@ -26,8 +27,6 @@ function create_hostonly_interface(byref name, ip, mask)
 	rxp.Pattern = "Interface '([^']+)' was successfully created"
 
 	' Create the interface
-	wscript.echo "Creating host-only interface: " + name + "..."
-
 	ret = call_VBoxManage ("hostonlyif create")
 	set m = rxp.Execute(ret(1)) 
 	if m.count > 0 then

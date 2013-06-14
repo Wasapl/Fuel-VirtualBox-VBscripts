@@ -152,12 +152,7 @@ End Function
 ' ret = call_VBoxManage ("list systemproperties")
 ' wscript.echo ret(1)
 
-Function create_vm (name, main_network_interface, cpu_cores, memory_mb, disk_mb)
-	dim vm_base_path, vm_path, vm_disk_path
-	vm_base_path = get_vm_base_path()
-	vm_path = fso.BuildPath(vm_base_path, name) 
-	vm_disk_path = fso.BuildPath(vm_path, name) 
-
+Function create_vm (name, nic, cpu_cores, memory_mb, disk_mb)
 	dim objExec, ret, cmd
 
 	' Create virtual machine with the right name and type (assuming CentOS) 
@@ -169,13 +164,8 @@ Function create_vm (name, main_network_interface, cpu_cores, memory_mb, disk_mb)
 	cmd = " modifyvm """ + name + """ --rtcuseutc on --memory " & memory_mb & " --cpus " & cpu_cores
 	call_VBoxManage cmd
 	
-	' Configure network interfaces
-	'VBoxManage modifyvm $name --nic1 hostonly --hostonlyadapter1 $main_network_interface --nictype1 Am79C973 --cableconnected1 on --macaddress1 auto
-	cmd = " modifyvm """ + name + """ --nic1 hostonly --hostonlyadapter1 """ + main_network_interface + """ --nictype1 Am79C973 --cableconnected1 on --macaddress1 auto"
-	call_VBoxManage cmd
-	'VBoxManage controlvm $name setlinkstate1 on
-	cmd = " controlvm """ + name + """ setlinkstate1 on"
-	call_VBoxManage cmd
+	' Configure main network interface
+	add_nic_to_vm name, 1, nic
 	
 	' Configure storage controllers
 	'VBoxManage storagectl $name --name 'IDE' --add ide
@@ -186,14 +176,39 @@ Function create_vm (name, main_network_interface, cpu_cores, memory_mb, disk_mb)
 	call_VBoxManage cmd
 	
 	' Create and attach the main hard drive
-	'VBoxManage createhd --filename "$vm_base_path/$name/$name" --size $disk_mb --format VDI
-	cmd = " createhd --filename """ + vm_disk_path + """ --size " & disk_mb & " --format VDI"
-	call_VBoxManage cmd
-	'VBoxManage storageattach $name --storagectl 'SATA' --port 0 --device 0 --type hdd --medium "$vm_disk_path"
-	cmd = " storageattach """ + name + """ --storagectl ""SATA"" --port 0 --device 0 --type hdd --medium """ + vm_disk_path + ".vdi"" "
-	call_VBoxManage cmd
+	add_disk_to_vm name, 0, disk_mb
 end Function
-' ret = create_vm("foo", "VirtualBox Host-Only Ethernet Adapter" ,1 , 512, 8192)
+' ret = create_vm("foo", "VirtualBox Host-Only Ethernet Adapter #8" ,1 , 512, 8192)
+
+Function add_nic_to_vm(name, id, nic) 
+    WScript.echo "Adding NIC to """ + name + """ and bridging with host NIC " + nic + "..."
+	dim cmd
+    ' Configure network interfaces
+    'VBoxManage modifyvm $name --nic${id} hostonly --hostonlyadapter${id} $nic --nictype${id} Am79C973 --cableconnected${id} on --macaddress${id} auto
+    cmd = " modifyvm """ + name + """ --nic" & id & " hostonly --hostonlyadapter" & id & " """ & nic & """ --nictype" & id & " Am79C973 --cableconnected" & id & " on --macaddress" & id & " auto"
+    call_VBoxManage cmd
+    'VBoxManage controlvm $name setlinkstate${id} on
+    cmd = " controlvm """ + name + """ setlinkstate" & id & " on"
+    call_VBoxManage cmd
+end Function
+
+function add_disk_to_vm(vm_name, port, disk_mb) 
+	dim vm_base_path, vm_path, vm_disk_path
+	vm_base_path = get_vm_base_path()
+	vm_path = fso.BuildPath(vm_base_path, vm_name) 
+	vm_disk_path = fso.BuildPath(vm_path, vm_name) 
+	
+    wscript.echo "Adding disk to """ + vm_name + """, with size " & disk_mb & " Mb..."
+	dim cmd
+    'VBoxManage createhd --filename "$vm_disk_path/$disk_name" --size $disk_mb --format VDI
+    cmd = " createhd --filename """ + vm_disk_path + """ --size " & disk_mb & " --format VDI"
+    WScript.echo cmd
+    call_VBoxManage cmd
+    'VBoxManage storageattach $vm_name --storagectl 'SATA' --port $port --device 0 --type hdd --medium "$vm_disk_path/$disk_filename"
+    cmd = " storageattach """ + vm_name + """ --storagectl ""SATA"" --port " & port & " --device 0 --type hdd --medium """ + vm_disk_path + ".vdi"" "
+    WScript.echo cmd
+    call_VBoxManage cmd
+end function
 
 Function delete_vm (name)
 	dim vm_base_path, vm_path

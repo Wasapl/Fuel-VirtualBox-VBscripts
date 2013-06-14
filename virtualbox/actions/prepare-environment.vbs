@@ -7,11 +7,11 @@
 
 ' Include the script with handy functions to operate VMs and VirtualBox networking
 Sub Import(strFile)
-   Set objFs = CreateObject("Scripting.FileSystemObject")
-   Set objFile = objFs.OpenTextFile(strFile)
-   strCode = objFile.ReadAll
-   objFile.Close
-   ExecuteGlobal strCode
+	Set objFs = CreateObject("Scripting.FileSystemObject")
+	Set objFile = objFs.OpenTextFile(strFile)
+	strCode = objFile.ReadAll
+	objFile.Close
+	ExecuteGlobal strCode
 End Sub
 Import ".\functions\vm.vbs"
 Import ".\functions\network.vbs"
@@ -25,8 +25,6 @@ Import "config.vbs"
 ' wscript.echo "OK"
 
 ' Check for VirtualBox
-' TODO it can be in several places : 
-' in registry 
 wscript.echo "Checking for 'VBoxManage'... "
 VBoxManagePath = ""
 Set lstVBPaths = CreateObject( "System.Collections.ArrayList" )
@@ -36,7 +34,7 @@ lstVBPaths.Add """C:\Program Files\VirtualBox\VBoxManage.exe"""
 lstVBPaths.Add """C:\Program Files\Oracle\VirtualBox\VBoxManage.exe"""
 lstVBPaths.Add "VBoxManage.exe"
 
-' reading Vbox install dir form registry
+' reading Vbox install dir from Windows registry
 Const HKEY_LOCAL_MACHINE  = &H80000002
 ' Connect to registry provider on target machine with current user
 Set oReg = GetObject("winmgmts:{impersonationLevel=impersonate}!\\.\root\default:StdRegProv")
@@ -73,10 +71,12 @@ delete_vms_multiple vm_name_prefix
 'delete_all_hostonly_interfaces
 
 ' Create the required host-only interface
-create_hostonly_interface hostonly_interface_name, hostonly_interface_ip, hostonly_interface_mask
-wscript.echo "'" + hostonly_interface_name + "' created"
-wscript.echo "config.vbs, hostonly_interface_name=.+$, hostonly_interface_name=""" + hostonly_interface_name + """"
-Find_And_Replace "config.vbs", "hostonly_interface_name=.+$", "hostonly_interface_name=""" + hostonly_interface_name + """"
+for idx = 0 to 2
+	create_hostonly_interface host_nic_name(idx), host_nic_ip(idx), host_nic_mask(idx)
+	wscript.echo "'" & host_nic_name(idx) & "' created"
+	wscript.echo "config.vbs, host_nic_name\(" & idx & "\)\s*=\s*.+$ , host_nic_name(" & idx & ")=""" & host_nic_name(idx) & """"
+	Find_And_Replace "config.vbs", "host_nic_name\(" & idx & "\)\s*=\s*.+$", "host_nic_name(" & idx & ")=""" & host_nic_name(idx) & """"
+next
 
 ' Report success
 wscript.echo "Setup is done."
