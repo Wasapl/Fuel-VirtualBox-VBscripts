@@ -3,7 +3,7 @@
 '   - for minimal non-HA installation, specify 2 (1 controller + 1 compute)
 '   - for minimal non-HA with Cinder installation, specify 3 (1 ctrl + 1 compute + 1 cinder)
 '   - for minimal HA installation, specify 4 (3 controllers + 1 compute)
-cluster_size=4
+cluster_size=3
 
 ' Get the first available ISO from the directory 'iso'
 iso_path="iso\fuelweb-centos-1.0-rc1.iso"

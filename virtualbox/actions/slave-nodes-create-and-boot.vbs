@@ -22,8 +22,8 @@ for idx = 1 to cluster_size-1
 	on error resume next
 		vm_ram = vm_slave_memory_mb(idx)
 	On Error GoTo 0
-
-	create_vm name, host_nic_name(0), vm_slave_cpu_cores, vm_ram, vm_slave_disk_mb
+	wscript.echo name & " " & host_nic_name(0) & " " & vm_slave_cpu_cores & " " & vm_ram & " " & vm_slave_first_disk_mb
+	create_vm name, host_nic_name(0), vm_slave_cpu_cores, vm_ram, vm_slave_first_disk_mb
 
 	' Add additional NICs to VM
 	

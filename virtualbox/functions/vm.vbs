@@ -192,20 +192,22 @@ Function add_nic_to_vm(name, id, nic)
 	call_VBoxManage cmd
 end Function
 
+
 function add_disk_to_vm(vm_name, port, disk_mb) 
-	dim vm_base_path, vm_path, vm_disk_path
+	dim vm_base_path, vm_disk_path, disk_name, disk_filename
 	vm_base_path = get_vm_base_path()
-	vm_path = fso.BuildPath(vm_base_path, vm_name) 
-	vm_disk_path = fso.BuildPath(vm_path, vm_name) 
+	vm_disk_path = fso.BuildPath(vm_base_path, vm_name) 
+	disk_name = vm_name & "_" & port
+	disk_filename = disk_name & ".vdi"
 	
 	wscript.echo "Adding disk to """ + vm_name + """, with size " & disk_mb & " Mb..."
 	dim cmd
 	'VBoxManage createhd --filename "$vm_disk_path/$disk_name" --size $disk_mb --format VDI
-	cmd = " createhd --filename """ + vm_disk_path + """ --size " & disk_mb & " --format VDI"
+	cmd = " createhd --filename """ + fso.BuildPath(vm_disk_path,disk_name) + """ --size " & disk_mb & " --format VDI"
 	WScript.echo cmd
 	call_VBoxManage cmd
 	'VBoxManage storageattach $vm_name --storagectl 'SATA' --port $port --device 0 --type hdd --medium "$vm_disk_path/$disk_filename"
-	cmd = " storageattach """ + vm_name + """ --storagectl ""SATA"" --port " & port & " --device 0 --type hdd --medium """ + vm_disk_path + ".vdi"" "
+	cmd = " storageattach """ + vm_name + """ --storagectl ""SATA"" --port " & port & " --device 0 --type hdd --medium """ + fso.BuildPath(vm_disk_path,disk_filename) + """ "
 	WScript.echo cmd
 	call_VBoxManage cmd
 end function
