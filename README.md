@@ -4,10 +4,10 @@ FuelWeb-VirtualBox-VBscripts
 Fuel-web VirtualBox VBscripts for Windows
 
 Scripts does folowing:
-1. configure VirtualBox environment according to config.vbs
-2. create Fuel-web Master VM and mount fuel web ISO in it
-3. wait for finish of Fuel-web install
-4. create and run slave VMs
+ 1. configure VirtualBox environment according to config.vbs
+ 2. create Fuel-web Master VM and mount fuel web ISO in it
+ 3. wait for finish of Fuel-web install
+ 4. create and run slave VMs
 
 In order to successfully run Fuel Web under VirtualBox, you need to:
 - download the official release (.iso) and place it under 'iso' directory
