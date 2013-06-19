@@ -43,9 +43,7 @@ Set oReg = Nothing
 lstVBPaths.Add """" + strInstallDir + "VBoxManage.exe"""
 
 for each vbPath in lstVBPaths
-	wscript.echo "checking " + vbPath
 	if fso.fileExists (strip_quotes(vbPath)) then
-		wscript.echo "Found VBoxManage.exe at " + vbPath + "...."
 		VBoxManagePath = vbPath
 	end if
 next
