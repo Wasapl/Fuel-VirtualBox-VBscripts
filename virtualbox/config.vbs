@@ -6,23 +6,23 @@
 cluster_size=3
 
 ' Get the first available ISO from the directory 'iso'
-iso_path="iso\fuelweb-centos-1.0-rc1.iso"
+iso_path="iso\fuelweb-centos-3.0.iso"
 ' Every Fuel Web machine name will start from this prefix  
-vm_name_prefix="fuel-test-"
+vm_name_prefix="fuel-web-"
 
 ' Host interfaces to bridge VMs interfaces with
 ' One cannot name host-only interfaces in Windows. So parameters 'host_nic_name(x)' will be rewrited after creating interface.
 redim host_nic_name(2), host_nic_ip(2), host_nic_mask(2)
 
-host_nic_name(0)="VirtualBox Host-Only Ethernet Adapter #9"
+host_nic_name(0)="VirtualBox Host-Only Ethernet Adapter #2"
 host_nic_ip(0) = "10.20.0.1"
 host_nic_mask(0) = "255.255.255.0"
 
-host_nic_name(1)="VirtualBox Host-Only Ethernet Adapter #10"
+host_nic_name(1)="VirtualBox Host-Only Ethernet Adapter #3"
 host_nic_ip(1) = "240.0.1.1"
 host_nic_mask(1) = "255.255.255.0"
 
-host_nic_name(2)="VirtualBox Host-Only Ethernet Adapter #11"
+host_nic_name(2)="VirtualBox Host-Only Ethernet Adapter #4"
 host_nic_ip(2) = "172.16.0.1"
 host_nic_mask(2) = "255.255.255.0"
 
