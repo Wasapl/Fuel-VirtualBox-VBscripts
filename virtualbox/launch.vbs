@@ -13,6 +13,16 @@ Import "config.vbs"
 ' Prepare the host system
 Import ".\actions\prepare-environment.vbs"
 
+' clean previous installation if exists
+Import ".\actions\clean-previous-installation.vbs"
+
+' clean previous installation if exists
+Import ".\actions\create-interfaces.vbs"
+
+' preparation is done
+wscript.echo "Setup is done."
+
+
 ' Create and launch master node
 Import ".\actions\master-node-create-and-install.vbs"
 

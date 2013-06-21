@@ -3,7 +3,6 @@
 '   - check that there is no previous installation of Fuel Web (if there is one, the script deletes it)
 '   - creates host-only network interfaces
 '
-' We are avoiding using 'which' because of http://stackoverflow.com/questions/592620/check-if-a-program-exists-from-a-bash-script 
 
 ' Include the script with handy functions to operate VMs and VirtualBox networking
 Sub Import(strFile)
@@ -62,19 +61,3 @@ if not fso.fileExists (iso_path) then
 end if
 wscript.echo "OK"
 
-' Delete all VMs from the previous Fuel Web installation
-delete_vms_multiple vm_name_prefix
-
-' Delete all host-only interfaces
-'delete_all_hostonly_interfaces
-
-' Create the required host-only interface
-for idx = 0 to 2
-	create_hostonly_interface host_nic_name(idx), host_nic_ip(idx), host_nic_mask(idx)
-	wscript.echo "'" & host_nic_name(idx) & "' created"
-	wscript.echo "config.vbs, host_nic_name\(" & idx & "\)\s*=\s*.+$ , host_nic_name(" & idx & ")=""" & host_nic_name(idx) & """"
-	Find_And_Replace "config.vbs", "host_nic_name\(" & idx & "\)\s*=\s*.+$", "host_nic_name(" & idx & ")=""" & host_nic_name(idx) & """"
-next
-
-' Report success
-wscript.echo "Setup is done."
