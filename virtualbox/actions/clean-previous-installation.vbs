@@ -20,8 +20,9 @@ delete_vms_multiple vm_name_prefix
 'delete_all_hostonly_interfaces
 
 for idx = 0 to 2
-	wscript.echo "Deleting host-only interface: " + host_nic_name(idx) + "..."
-	call_VBoxManage "hostonlyif remove """ + host_nic_name(idx) + """"
+	if is_hostonly_interface_present(host_nic_name(idx)) then
+		delete_hostonly_interface(host_nic_name(idx))
+	end if
 next
 
 ' TODO instead delete_all_hostonly_interfaces: 

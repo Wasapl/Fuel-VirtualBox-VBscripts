@@ -49,16 +49,19 @@ function create_hostonly_interface(byref name, ip, mask)
 	call_VBoxManage "hostonlyif ipconfig """ + name + """ --ip " + ip + " --netmask " + mask
 end function
 
+Function delete_hostonly_interface(name)
+		wscript.echo "Deleting host-only interface: " + name + "..."
+		call_VBoxManage "hostonlyif remove " + name
+end Function
+
 function delete_all_hostonly_interfaces() 
 	dim list, interface
 	list=split(get_hostonly_interfaces(), vbcrlf)
 
 	' Delete every single hostonly interface in the system
 	for each interface in list 
-		wscript.echo "Deleting host-only interface: " + interface + "..."
-		call_VBoxManage "hostonlyif remove " + interface
+		delete_hostonly_interface(interface)
 	next
 end function
-
 
 
