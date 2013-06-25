@@ -51,7 +51,7 @@ end function
 
 Function delete_hostonly_interface(name)
 		wscript.echo "Deleting host-only interface: " + name + "..."
-		call_VBoxManage "hostonlyif remove " + name
+		call_VBoxManage "hostonlyif remove """ + host_nic_name(idx) + """"
 end Function
 
 function delete_all_hostonly_interfaces() 
