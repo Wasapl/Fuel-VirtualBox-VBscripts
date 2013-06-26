@@ -18,3 +18,7 @@ for idx = 0 to 2
 	'wscript.echo "config.vbs, host_nic_name\(" & idx & "\)\s*=\s*.+$ , host_nic_name(" & idx & ")=""" & host_nic_name(idx) & """"
 	Find_And_Replace "config.vbs", "host_nic_name\(" & idx & "\)\s*=\s*.+$", "host_nic_name(" & idx & ")=""" & host_nic_name(idx) & """"
 next
+
+' Sometimes VBoxManage can't properly configure IP at hostonlyif. 
+' Have to log all interfaces to provide user propper information.
+wscript.echo call_VBoxManage("list hostonlyifs")(1)

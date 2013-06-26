@@ -34,3 +34,5 @@ for idx = 0 to 2
 		wscript.quit
 	end If 
 next
+
+wscript.echo call_VBoxManage("list hostonlyifs")(1)
