@@ -22,3 +22,5 @@ Notes
 
 1. Since there is no native ssh client in Windows scripts use plink.exe from Putty to determine finish of Fuel-web install.
 2. One cannot name host-only interfaces in Windows. VirtualBox names it like "VirtualBox Host-Only Ethernet Adapter #N"  and you cannot rename it. Scripts determine name of interface created and rewrite it in config.vbs.
+3. Windows do not allow IP addresses from range 240.0.0.0/4. You have to change value of host_nic_ip(1) in config.vbs, and change public and floating IPs in FuelWeb Dashboard.
+4. Sometimes VBoxManage can't properly configure IP at hostonly interface. You have to check interfaces attributes after its creation. Restart script if interfaces IPs are wrong.
