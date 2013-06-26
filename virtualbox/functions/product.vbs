@@ -10,7 +10,7 @@ function is_product_vm_operational(ip, username, password)
 	arr(1) = ""
 	arr(2) = ""
 	is_product_vm_operational = False
-	cmd =  "plink.exe " + username + "@" + ip + " -pw " + password + " ""grep -o 'Finished catalog run' /var/log/puppet/bootstrap_admin_node.log"""
+	cmd =  "plink.exe -batch " + username + "@" + ip + " -pw " + password + " ""grep -o 'Finished catalog run' /var/log/puppet/bootstrap_admin_node.log"""
 	' wscript.echo cmd
 	Set oExec = objShell.Exec(cmd)
 
