@@ -15,11 +15,19 @@ In order to successfully run FuelWeb under VirtualBox, you need to:
 - install latest version of VirtualBox for windows and install VirtualBox Extension Pack
 - download the official release (.iso) and place it under 'iso' directory
 - edit "./config.vbs" 
-- run "cscript ./launch.sh". it will spin up master node and slave nodes.
+- run "cscript ./launch.vbs". it will spin up master node and slave nodes.
 
 If there are any errors, the script will report them and abort.
 
-If you want to change settings (number of OpenStack nodes, CPU, RAM, HDD), please refer to "config.sh".
+If you want to change settings (number of OpenStack nodes, CPU, RAM, HDD), please refer to "config.vbs".
+
+If you need only part of all scripted actions to be done comment unnecessary actions in "launch.vbs". 
+For example you have already configured VirtualBox, network interfaces and installed master node. 
+Only thing you need is to create slave nodes. Edit "launch.vbs" and comment lines:
+' Import ".\actions\clean-previous-installation.vbs"
+' Import ".\actions\create-interfaces.vbs"
+' Import ".\actions\master-node-create-and-install.vbs"
+Note. Do not comment line Import ".\actions\prepare-environment.vbs" Otherwise script will fail.
 
 Notes
  1. Windows Script Host have two script interpreters: "Wscript" for Window UI and "Cscript" for command line UI. Since scripts does a lot of output its beter to run it with Cscript interpreter.
