@@ -14,6 +14,32 @@ function is_hostonly_interface_present(name)
 	is_hostonly_interface_present = instr(list, name) > 0 
 end function
 
+
+function check_hostonly_interface(name, ip, mask) 
+	Dim listing, arrLines, linesNb, i
+	listing = get_vbox_value ("list hostonlyifs", "(Name|IPAddress|NetworkMask)")
+	arrLines = Split(listing,vbcrlf)
+	linesNb = Ubound(arrLines) + 1
+	if linesNb Mod 3 <> 0 then
+		wscript.echo "Something went wrong..."
+	end if
+	check_hostonly_interface = False
+	for i = 0 to linesNb-1 step 2
+		if arrLines(i) = name then
+			if arrLines(i+1) <> ip or arrLines(i+2) <> mask then
+				wscript.echo "IF is WRONG"
+				check_hostonly_interface = True
+			else
+				wscript.echo "Ok"
+				check_hostonly_interface = False
+			end if
+			exit for
+		end if
+	next
+end Function 
+wscript.echo check_hostonly_interface("VirtualBox Host-Only Ethernet Adapter", "192.168.56.1", "255.255.255.0")
+
+
 function create_hostonly_interface(byref name, ip, mask) 
 	wscript.echo "Creating host-only interface (name ip netmask): " & name  & " " & ip & " " & mask
 	' Exit if the interface already exists (deleting it here is not safe, as VirtualBox creates hostonly adapters sequentially)
