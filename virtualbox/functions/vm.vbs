@@ -23,9 +23,9 @@ function get_vbox_value (command, parameter)
 		set m = rxp.Execute(line) 
 		if m.count > 0 then
 			if isempty(value) then
-				value = m(0).SubMatches(0)
+				value = m(0).SubMatches(m(0).SubMatches.count-1)
 			else
-				value = value + vbCrLf + m(0).SubMatches(0)
+				value = value + vbCrLf + m(0).SubMatches(m(0).SubMatches.count-1)
 			end if
 		end if
 	Loop While Not objExec.Stdout.atEndOfStream
