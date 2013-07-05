@@ -22,22 +22,21 @@ function check_hostonly_interface(name, ip, mask)
 	linesNb = Ubound(arrLines) + 1
 	if linesNb Mod 3 <> 0 then
 		wscript.echo "Something went wrong..."
+		exit function
 	end if
 	check_hostonly_interface = False
 	for i = 0 to linesNb-1 step 2
 		if arrLines(i) = name then
 			if arrLines(i+1) <> ip or arrLines(i+2) <> mask then
-				wscript.echo "IF is WRONG"
 				check_hostonly_interface = True
 			else
-				wscript.echo "Ok"
 				check_hostonly_interface = False
 			end if
 			exit for
 		end if
 	next
 end Function 
-wscript.echo check_hostonly_interface("VirtualBox Host-Only Ethernet Adapter", "192.168.56.1", "255.255.255.0")
+'wscript.echo check_hostonly_interface("VirtualBox Host-Only Ethernet Adapter", "192.168.56.1", "255.255.255.0")
 
 
 function create_hostonly_interface(byref name, ip, mask) 
