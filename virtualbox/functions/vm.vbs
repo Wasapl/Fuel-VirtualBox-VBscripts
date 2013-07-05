@@ -1,6 +1,6 @@
 Option Explicit
-
 'This file contains the functions to manage VMs in through VirtualBox CLI
+
 
 Dim fso, objShell, VBoxManagePath
 dim ret
@@ -35,6 +35,7 @@ function get_vbox_value (command, parameter)
 end Function 
 ' WScript.Echo "Value is " + get_vbox_value ("list systemproperties", "Default machine folder")
 ' WScript.Echo "Value is " + get_vbox_value ("list hostonlyifs", "Name")
+
 
 function get_vm_base_path ()
 	get_vm_base_path = get_vbox_value ("list systemproperties", "Default machine folder")
@@ -78,13 +79,16 @@ end Function
 ' 	WScript.Echo "vms: " + str
 ' end if
 
+
 function get_vms_present()
 	get_vms_present = get_vms_list ("list vms")
 end Function
 
+
 Function get_vms_running()
 	get_vms_running = get_vms_list ("list runningvms")
 end Function
+
 
 function is_vm_present(name) 
 	dim list , isPresent , l
@@ -102,6 +106,7 @@ function is_vm_present(name)
 
 	is_vm_present = isPresent
 end Function
+
 
 function is_vm_running(name) 
 	dim list , isRunning , l
@@ -122,6 +127,7 @@ end Function
 ' if is_vm_running("fuel2-pm")= True then
 ' 	WScript.Echo "is_vm_running(fuel2-pm)= True"
 ' end if
+
 
 Function call_VBoxManage (command)
 	dim oExec
@@ -152,6 +158,7 @@ End Function
 ' ret = call_VBoxManage ("list systemproperties")
 ' wscript.echo ret(1)
 
+
 Function create_vm (name, nic, cpu_cores, memory_mb, disk_mb)
 	dim objExec, ret, cmd
 
@@ -179,6 +186,7 @@ Function create_vm (name, nic, cpu_cores, memory_mb, disk_mb)
 	add_disk_to_vm name, 0, disk_mb
 end Function
 ' ret = create_vm("foo", "VirtualBox Host-Only Ethernet Adapter #8" ,1 , 512, 8192)
+
 
 Function add_nic_to_vm(name, id, nic) 
 	WScript.echo "Adding NIC to """ + name + """ and bridging with host NIC " + nic + "..."
@@ -212,6 +220,7 @@ function add_disk_to_vm(vm_name, port, disk_mb)
 	call_VBoxManage cmd
 end function
 
+
 Function delete_vm (name)
 	dim vm_base_path, vm_path
 	vm_base_path = get_vm_base_path()
@@ -237,6 +246,7 @@ Function delete_vm (name)
 	end if
 End Function
 
+
 Function delete_vms_multiple(name_prefix)
 	dim list, prefix_len, vm
 	list = get_vms_present()
@@ -256,6 +266,7 @@ Function delete_vms_multiple(name_prefix)
 End Function
 'delete_vms_multiple "foo"
 
+
 Function start_vm (name)
 	' Just start it
 	'call_VBoxManage "startvm """ + name + """ --type headless"
@@ -268,6 +279,7 @@ Function mount_iso_to_vm(name, iso_path)
 	call_VBoxManage "storageattach """ + name + """ --storagectl ""IDE"" --port 0 --device 0 --type dvddrive --medium """ + iso_path + """"
 End Function
 ' mount_iso_to_vm "foo", "D:\distr\iso\Ubuntu-x86_64-mini.iso"
+
 
 Function enable_network_boot_for_vm(name)
 	' Set the right boot priority

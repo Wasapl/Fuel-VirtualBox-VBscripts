@@ -1,5 +1,6 @@
 Option Explicit
 
+
 Function strip_quotes (str)
 	if left(str,1) = """" then 
 		str = right(str, len(str)-1)
@@ -10,6 +11,7 @@ Function strip_quotes (str)
 	strip_quotes = str
 End Function
 'wscript.echo strip_quotes ("""12345""")
+
 
 function Find_And_Replace(strFilename, strFind, strReplace)
 	dim inputFile, strInputFile, outputFile, rxp

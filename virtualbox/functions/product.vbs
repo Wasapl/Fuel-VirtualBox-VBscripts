@@ -1,8 +1,10 @@
 Option Explicit
 ' This file contains the functions to connect to the product VM and see if it became operational
 
+
 Dim objShell
 Set objShell = WScript.CreateObject( "WScript.Shell" )
+
 
 function is_product_vm_operational(ip, username, password)
 	' Log in into the VM, see if Puppet has completed its run
@@ -46,6 +48,7 @@ function is_product_vm_operational(ip, username, password)
 	end if
 end Function 
 ' is_product_vm_operational "10.20.0.2", "root", "r00tme"
+
 
 function wait_for_product_vm_to_install(ip, username, password)
 	wscript.echo "Waiting for product VM to install. Please do NOT abort the script..."

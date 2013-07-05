@@ -1,10 +1,12 @@
 Option Explicit
 ' This file contains the functions to manage host-only interfaces in the system
 
+
 function get_hostonly_interfaces() 
 	get_hostonly_interfaces = get_vbox_value ("list hostonlyifs", "Name")
 	'echo -e `VBoxManage list hostonlyifs | grep '^Name' | sed 's/^Name\:[ \t]*//' | uniq` 
 end function
+
 
 function is_hostonly_interface_present(name) 
 	dim lstIfs, arrIfs, i
@@ -81,10 +83,12 @@ function create_hostonly_interface(byref name, ip, mask)
 	call_VBoxManage "hostonlyif ipconfig """ + name + """ --ip " + ip + " --netmask " + mask
 end function
 
+
 Function delete_hostonly_interface(name)
 		wscript.echo "Deleting host-only interface: " + name + "..."
 		call_VBoxManage "hostonlyif remove """ + host_nic_name(idx) + """"
 end Function
+
 
 function delete_all_hostonly_interfaces() 
 	dim list, interface
@@ -95,5 +99,4 @@ function delete_all_hostonly_interfaces()
 		delete_hostonly_interface(interface)
 	next
 end function
-
 
