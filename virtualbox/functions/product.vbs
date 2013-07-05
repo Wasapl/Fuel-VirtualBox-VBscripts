@@ -1,4 +1,6 @@
+Option Explicit
 ' This file contains the functions to connect to the product VM and see if it became operational
+
 Dim objShell
 Set objShell = WScript.CreateObject( "WScript.Shell" )
 
