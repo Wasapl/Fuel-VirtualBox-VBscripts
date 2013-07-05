@@ -27,7 +27,7 @@ function check_hostonly_interface(name, ip, mask)
 	check_hostonly_interface = False
 	for i = 0 to linesNb-1 step 2
 		if arrLines(i) = name then
-			if arrLines(i+1) <> ip or arrLines(i+2) <> mask then
+			if arrLines(i+1) = ip or arrLines(i+2) = mask then
 				check_hostonly_interface = True
 			else
 				check_hostonly_interface = False
