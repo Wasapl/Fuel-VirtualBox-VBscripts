@@ -7,12 +7,19 @@ function get_hostonly_interfaces()
 end function
 
 function is_hostonly_interface_present(name) 
-	dim list
-	list = get_hostonly_interfaces()
-	
+	dim lstIfs, arrIfs, i
+	lstIfs = get_hostonly_interfaces()
+	arrIfs = Split(lstIfs,vbcrlf)
 	' Check that the list of interfaces contains the given interface
-	is_hostonly_interface_present = instr(list, name) > 0 
+	is_hostonly_interface_present = false
+	for i = 0 to Ubound(arrIfs)
+		if arrIfs(i) = name then
+			is_hostonly_interface_present = True
+			exit for 
+		end if
+	next
 end function
+'wscript.echo is_hostonly_interface_present("VirtualBox Host-Only Ethernet Adapter") 
 
 
 function check_hostonly_interface(name, ip, mask) 
