@@ -1,16 +1,6 @@
 ' This script creates slaves node for the product, launches its installation,
 ' and waits for its completion
 
-' Include the handy functions to operate VMs
-Sub Import(strFile)
-	Set objFs = CreateObject("Scripting.FileSystemObject")
-	Set objFile = objFs.OpenTextFile(strFile)
-	strCode = objFile.ReadAll
-	objFile.Close
-	ExecuteGlobal strCode
-End Sub
-Import ".\functions\vm.vbs"
-Import "config.vbs"
 
 ' Create and start slave nodes
 for idx = 1 to cluster_size-1

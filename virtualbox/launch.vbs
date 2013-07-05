@@ -8,6 +8,7 @@ End Sub
 Import ".\functions\vm.vbs"
 Import ".\functions\network.vbs"
 Import ".\functions\utils.vbs"
+Import ".\functions\product.vbs"
 Import "config.vbs"
 
 ' check for files and prepare varables

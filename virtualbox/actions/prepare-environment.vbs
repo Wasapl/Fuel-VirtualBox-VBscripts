@@ -4,19 +4,6 @@
 '   - creates host-only network interfaces
 '
 
-' Include the script with handy functions to operate VMs and VirtualBox networking
-Sub Import(strFile)
-	Set objFs = CreateObject("Scripting.FileSystemObject")
-	Set objFile = objFs.OpenTextFile(strFile)
-	strCode = objFile.ReadAll
-	objFile.Close
-	ExecuteGlobal strCode
-End Sub
-Import ".\functions\vm.vbs"
-Import ".\functions\network.vbs"
-Import ".\functions\utils.vbs"
-Import "config.vbs"
-
 
 ' Check for expect
 ' wscript.echo -n "Checking for 'expect'... "

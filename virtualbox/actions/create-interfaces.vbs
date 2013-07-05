@@ -1,15 +1,5 @@
 ' This script creates host-only interfaces for Fuel Web
 ' it does nothing if interface exists already
-Sub Import(strFile)
-	Set objFs = CreateObject("Scripting.FileSystemObject")
-	Set objFile = objFs.OpenTextFile(strFile)
-	strCode = objFile.ReadAll
-	objFile.Close
-	ExecuteGlobal strCode
-End Sub
-Import ".\functions\vm.vbs"
-Import ".\functions\network.vbs"
-Import "config.vbs"
 
 
 for idx = 0 to 2

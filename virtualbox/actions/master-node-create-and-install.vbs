@@ -1,18 +1,6 @@
 ' This script creates a master node for the product, launches its installation,
 ' and waits for its completion
 
-' Include the handy functions to operate VMs and track ISO installation progress
-Sub Import(strFile)
-	Set objFs = CreateObject("Scripting.FileSystemObject")
-	Set objFile = objFs.OpenTextFile(strFile)
-	strCode = objFile.ReadAll
-	objFile.Close
-	ExecuteGlobal strCode
-End Sub
-Import ".\functions\vm.vbs"
-Import ".\functions\product.vbs"
-Import "config.vbs"
-
 
 ' Create master node for the product
 dim name
