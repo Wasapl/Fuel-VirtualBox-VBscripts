@@ -1,14 +1,6 @@
 ' This script performs initial check and configuration of the host system. It:
 '   - verifies that all available command-line tools are present on the host system
-'   - check that there is no previous installation of Fuel Web (if there is one, the script deletes it)
-'   - creates host-only network interfaces
-'
 
-
-' Check for expect
-' wscript.echo -n "Checking for 'expect'... "
-' expect -v >/dev/null 2>&1 || { wscript.echo >&2 "'expect' is not available in the path, but it's required. Aborting."; exit 1; }
-' wscript.echo "OK"
 
 ' Check for VirtualBox
 wscript.echo "Checking for 'VBoxManage'... "
