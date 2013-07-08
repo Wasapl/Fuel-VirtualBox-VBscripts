@@ -48,6 +48,37 @@ end Function
 'wscript.echo check_hostonly_interface("VirtualBox Host-Only Ethernet Adapter", "192.168.56.1", "255.255.255.0")
 
 
+function surely_create_hostonly_interface(byref name, ip, mask) 
+' Sometimes VBoxManage can't properly configure IP at hostonly interface. 
+' We have to check interface after its creation and recreate it if there is wrong IP/mask.
+	dim i, max_tries, sleep_seconds
+	max_tries = 5
+	sleep_seconds = 5
+	surely_create_hostonly_interface = False
+
+	for i = 1 to max_tries
+		if is_hostonly_interface_present(name) then 
+			delete_hostonly_interface name
+			WScript.sleep sleep_seconds * 1000
+		end if
+
+		create_hostonly_interface name, ip, mask
+
+		if is_hostonly_interface_present(name) then 
+			if check_hostonly_interface (name, ip, mask) then
+				surely_create_hostonly_interface = True
+				exit for
+			else
+				wscript.echo "Interface was not created properly."
+			end if
+		end if
+
+		WScript.sleep sleep_seconds * 1000
+	next
+end Function 
+'wscript.echo surely_create_hostonly_interface ("VirtualBox Host-Only Ethernet Adapter #8", "192.168.1.1", "255.255.255.0")
+
+
 function create_hostonly_interface(byref name, ip, mask) 
 	wscript.echo "Creating host-only interface (name ip netmask): " & name  & " " & ip & " " & mask
 	' Exit if the interface already exists (deleting it here is not safe, as VirtualBox creates hostonly adapters sequentially)
