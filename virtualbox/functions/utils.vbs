@@ -31,4 +31,18 @@ function Find_And_Replace(strFilename, strFind, strReplace)
 	outputFile.Close
 	Set outputFile = Nothing
 end function 
-'Find_And_Replace "..\config.vbs", "host_nic_name\(0\) = .+$", "hostonly_interface_name=""shitty shit"""
+'Find_And_Replace "..\config.vbs", "host_nic_name\(0\) = .+$", "hostonly_interface_name=""HOIF name"""
+
+
+function get_first_file(folder,FileExtention)
+	get_first_file = ""
+	dim ISOs, f
+	Set ISOs = CreateObject("Scripting.FileSystemObject").GetFolder(folder).Files
+	for each f in ISOs
+		if Right(f.name,len(FileExtention)) = FileExtention then
+			get_first_file = folder & "\" & f.name
+			exit for
+		end if 
+	next
+end Function
+'wscript.echo get_first_file("..\iso\","iso")
