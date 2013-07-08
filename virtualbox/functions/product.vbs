@@ -55,7 +55,7 @@ function wait_for_product_vm_to_install(ip, username, password)
 
 	' Loop until master node gets successfully installed
 	do until is_product_vm_operational (ip, username, password)
-		WScript.sleep 5
+		WScript.sleep 5 * 1000
 	loop
 end Function
 'wait_for_product_vm_to_install "10.20.0.2", "root", "r00tme"
