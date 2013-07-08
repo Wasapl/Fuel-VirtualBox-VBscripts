@@ -3,7 +3,13 @@
 
 
 for idx = 0 to 2
-	create_hostonly_interface host_nic_name(idx), host_nic_ip(idx), host_nic_mask(idx)
+	if not surely_create_hostonly_interface(host_nic_name(idx), host_nic_ip(idx), host_nic_mask(idx)) then
+		wscript.echo "Creation of " & host_nic_name(idx) & " failed several times. "
+		wscript.echo "This may be due to " & host_nic_ip(idx) & " assigned to other interface or its incorrect IP."
+		wscript.echo "Please check interfaces and edit config.vbs."
+		wscript.Quit
+	end if
+	' create_hostonly_interface host_nic_name(idx), host_nic_ip(idx), host_nic_mask(idx)
 	wscript.echo "'" & host_nic_name(idx) & "' created"
 	'wscript.echo "config.vbs, host_nic_name\(" & idx & "\)\s*=\s*.+$ , host_nic_name(" & idx & ")=""" & host_nic_name(idx) & """"
 	Find_And_Replace "config.vbs", "host_nic_name\(" & idx & "\)\s*=\s*.+$", "host_nic_name(" & idx & ")=""" & host_nic_name(idx) & """"
