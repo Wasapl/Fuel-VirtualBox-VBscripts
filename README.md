@@ -15,7 +15,7 @@ In order to successfully run FuelWeb under VirtualBox, you need to:
  1.  install latest version of *VirtualBox* for windows and install VirtualBox *Extension Pack*
  2.  download the FuelWeb official release (.iso) and place it under 'iso' directory
  3.  edit `./config.vbs`
- 4.  run `cscript ./launch.vbs`. it will spin up master node and slave nodes.
+ 4.  run `cscript ./launch.vbs`. It will automatically pick up the iso, and will spin up master node and slave nodes.
 
 If there are any errors, the script will report them and abort.
 
