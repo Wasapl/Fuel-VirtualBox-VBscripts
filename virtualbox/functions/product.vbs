@@ -7,8 +7,8 @@ Set objShell = WScript.CreateObject( "WScript.Shell" )
 
 
 function is_product_vm_operational(ip, username, password)
-	' Log in into the VM, see if Puppet has completed its run
-	' Looks a bit ugly, but 'end of expect' has to be in the very beginning of the line 
+' Log in into the VM, see if Puppet has completed its run
+' Returns: boolean
 	dim oExec
 	dim arr(2), cmd
 	arr(1) = ""
@@ -51,6 +51,8 @@ end Function
 
 
 function wait_for_product_vm_to_install(ip, username, password)
+' In a loop check if Puppet has completed its run
+' Returns: nothing
 	wscript.echo "Waiting for product VM to install. Please do NOT abort the script..."
 
 	' Loop until master node gets successfully installed

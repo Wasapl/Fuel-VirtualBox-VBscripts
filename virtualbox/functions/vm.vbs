@@ -1,36 +1,40 @@
 Option Explicit
-'This file contains the functions to manage VMs in through VirtualBox CLI
+'This file contains the functions to manage VMs through VirtualBox CLI
 
 
-Dim fso, objShell, VBoxManagePath
+Dim objFSO, objShell, VBoxManagePath
 dim ret
-Set fso = CreateObject("Scripting.FileSystemObject")
+Set objFSO = CreateObject("Scripting.FileSystemObject")
 Set objShell = WScript.CreateObject("WScript.Shell")
 ' use this VBoxManagePath initialization for debuging vm.vbs only
 ' VBoxManagePath = """C:\Program Files\Oracle\VirtualBox\VBoxManage.exe"""
 
 
 function get_vbox_value (command, parameter)
-	Dim objExec, m, rxp, line, value
+' Parse output of given command and returns value of given parameter. If there is several values its separated by CR LF.
+' Inputs: command - VBoxManage.exe command
+'		parameter - name of parameter exactly from start of line to colon.
+' Returns: string separated by CR LF.
+	Dim objExec, objMatches, objRXP, strLine, strValue
 
-	Set rxp = New RegExp : rxp.Global = True : rxp.Multiline = False
-	rxp.Pattern = "^" + parameter + ":?\s*(.+)$"
+	Set objRXP = New RegExp : objRXP.Global = True : objRXP.Multiline = False
+	objRXP.Pattern = "^" + parameter + ":?\s*(.+)$"
 
 	Set objExec = objShell.Exec(VBoxManagePath + " " + command)
 
 	Do
-		line = objExec.StdOut.ReadLine()
-		set m = rxp.Execute(line) 
-		if m.count > 0 then
-			if isempty(value) then
-				value = m(0).SubMatches(m(0).SubMatches.count-1)
+		strLine = objExec.StdOut.ReadLine()
+		set objMatches = objRXP.Execute(strLine) 
+		if objMatches.count > 0 then
+			if isempty(strValue) then
+				strValue = objMatches(0).SubMatches(objMatches(0).SubMatches.count-1)
 			else
-				value = value + vbCrLf + m(0).SubMatches(m(0).SubMatches.count-1)
+				strValue = strValue + vbCrLf + objMatches(0).SubMatches(objMatches(0).SubMatches.count-1)
 			end if
 		end if
 	Loop While Not objExec.Stdout.atEndOfStream
 
-	get_vbox_value = value
+	get_vbox_value = strValue
 	Set objExec = Nothing
 end Function 
 ' WScript.Echo "Value is " + get_vbox_value ("list systemproperties", "Default machine folder")
@@ -38,28 +42,33 @@ end Function
 
 
 function get_vm_base_path ()
+' Returns name of folder there VMs are stored. 
+' Example: "D:\VirtualBox VMs" (without qoutes)
 	get_vm_base_path = get_vbox_value ("list systemproperties", "Default machine folder")
 end Function
 
 
 function get_vms_list (command)
-	Dim objExec, x,  line, lstProgID, m , match, rxp
+' Reads list of VMs
+' Inputs: command should be one of strings: "list vms", "list runningvms"
+' Returns: an array of pairs (VM_name, VM_UUID)
+	Dim objExec, strLine, lstProgID, objMatches , match, objRXP
 
 	' get_vms_list = Nothing
 
-	Set rxp = New RegExp : rxp.Global = True : rxp.Multiline = True
-	rxp.Pattern = """([^""]+)""\s+({[^}]+})"
+	Set objRXP = New RegExp : objRXP.Global = True : objRXP.MultiLine = True
+	objRXP.Pattern = """([^""]+)""\s+({[^}]+})"
 	Set lstProgID = CreateObject( "System.Collections.ArrayList" )
 	
 	Set objExec = objShell.Exec(VBoxManagePath + " " + command)
 
-	line = ""
+	strLine = ""
 	Do
-		line = line + vbCrLf + objExec.StdOut.ReadLine()
+		strLine = strLine + vbCrLf + objExec.StdOut.Readline()
 	Loop While Not objExec.Stdout.atEndOfStream
-	set m = rxp.Execute(line) 
-	if m.count > 0 then
-		for each match in m
+	set objMatches = objRXP.Execute(strLine) 
+	if objMatches.count > 0 then
+		for each match in objMatches
 	 		lstProgID.Add match.SubMatches
 		next
 		get_vms_list = lstProgID.ToArray
@@ -81,24 +90,29 @@ end Function
 
 
 function get_vms_present()
+' Returns list of existing VMs
+' Returns: an array of pairs (VM_name, VM_UUID)
 	get_vms_present = get_vms_list ("list vms")
 end Function
 
 
 Function get_vms_running()
+' Returns list of running VMs
+' Returns: an array of pairs (VM_name, VM_UUID)
 	get_vms_running = get_vms_list ("list runningvms")
 end Function
 
 
-function is_vm_present(name) 
-	dim list , isPresent , l
+function is_vm_present(name)
+' Returns: boolean True if VM exists, False if VM not exists
+	dim arrVMs , isPresent , vm
 	
 	isPresent = False
 
-	list = get_vms_present()
-	if not isEmpty(list) then
-		for each l in list
-			if name = l(0) then 
+	arrVMs = get_vms_present()
+	if not isEmpty(arrVMs) then
+		for each vm in arrVMs
+			if name = vm(0) then 
 				isPresent = true
 			end if
 		next 
@@ -108,15 +122,16 @@ function is_vm_present(name)
 end Function
 
 
-function is_vm_running(name) 
-	dim list , isRunning , l
+function is_vm_running(name)
+' Returns: boolean True if VM is running, False if VM is not running
+	dim arrVMs , isRunning , vm
 	
 	isRunning = False
 
-	list = get_vms_running()
-	if not isEmpty(list) then
-		for each l in list
-			if name = l(0) then 
+	arrVMs = get_vms_running()
+	if not isEmpty(arrVMs) then
+		for each vm in arrVMs
+			if name = vm(0) then 
 				isRunning = true
 			end if
 		next 
@@ -130,6 +145,10 @@ end Function
 
 
 Function call_VBoxManage (command)
+' executes VBoxManage.exe with given command.
+' Returns: array, where arr(0) is VBoxManage ExitCode
+' 			arr(1) - StdOut
+' 			arr(2) - StdErr
 	dim oExec
 	dim arr(2)
 	Set oExec = objShell.Exec(VBoxManagePath + " " + command)
@@ -160,6 +179,13 @@ End Function
 
 
 Function create_vm (name, nic, cpu_cores, memory_mb, disk_mb)
+' creates VM with given parameters
+' Inputs: name - string
+'			nic - string, name of network interface to connect to VM
+'			cpu_cores - integer number of cores for VM
+'			memory_mb - integer amount of memory in MB
+'			disk_mb - integer disk size in MB
+' Returns: nothing
 	dim objExec, ret, cmd
 
 	' Create virtual machine with the right name and type (assuming CentOS) 
@@ -201,30 +227,34 @@ Function add_nic_to_vm(name, id, nic)
 end Function
 
 
-function add_disk_to_vm(vm_name, port, disk_mb) 
+function add_disk_to_vm(vm_name, port, disk_mb)
+' Creates disk with size disk_mb and attaches it to VM
+' Returns: nothing
 	dim vm_base_path, vm_disk_path, disk_name, disk_filename
 	vm_base_path = get_vm_base_path()
-	vm_disk_path = fso.BuildPath(vm_base_path, vm_name) 
+	vm_disk_path = objFSO.BuildPath(vm_base_path, vm_name) 
 	disk_name = vm_name & "_" & port
 	disk_filename = disk_name & ".vdi"
 	
 	wscript.echo "Adding disk to """ + vm_name + """, with size " & disk_mb & " Mb..."
 	dim cmd
 	'VBoxManage createhd --filename "$vm_disk_path/$disk_name" --size $disk_mb --format VDI
-	cmd = " createhd --filename """ + fso.BuildPath(vm_disk_path,disk_name) + """ --size " & disk_mb & " --format VDI"
+	cmd = " createhd --filename """ + objFSO.BuildPath(vm_disk_path,disk_name) + """ --size " & disk_mb & " --format VDI"
 	WScript.echo cmd
 	call_VBoxManage cmd
 	'VBoxManage storageattach $vm_name --storagectl 'SATA' --port $port --device 0 --type hdd --medium "$vm_disk_path/$disk_filename"
-	cmd = " storageattach """ + vm_name + """ --storagectl ""SATA"" --port " & port & " --device 0 --type hdd --medium """ + fso.BuildPath(vm_disk_path,disk_filename) + """ "
+	cmd = " storageattach """ + vm_name + """ --storagectl ""SATA"" --port " & port & " --device 0 --type hdd --medium """ + objFSO.BuildPath(vm_disk_path,disk_filename) + """ "
 	WScript.echo cmd
 	call_VBoxManage cmd
 end function
 
 
 Function delete_vm (name)
+' powers off and deletes VM
+' Returns: nothing
 	dim vm_base_path, vm_path
 	vm_base_path = get_vm_base_path()
-	vm_path = fso.BuildPath(vm_base_path, name) 
+	vm_path = objFSO.BuildPath(vm_base_path, name) 
 
 	dim cmd
 
@@ -239,27 +269,29 @@ Function delete_vm (name)
 	wscript.echo "Deleting existing virtual machine " + name + "..."
 	cmd = "unregistervm " + name + " --delete"
 	call_VBoxManage cmd
-	if fso.FolderExists(vm_path) then
+	if objFSO.FolderExists(vm_path) then
 		on error resume next
-		fso.DeleteFolder vm_path, True
+		objFSO.DeleteFolder vm_path, True
 		On Error GoTo 0
 	end if
 End Function
 
 
 Function delete_vms_multiple(name_prefix)
-	dim list, prefix_len, vm
-	list = get_vms_present()
-	if not isEmpty(list) then
-		prefix_len=len(name_prefix)
+' powers of and deletes all VM with given name prefix
+' Returns: nothing
+	dim arrVMs, intPrefixLen, arrVM
+	arrVMs = get_vms_present()
+	if not isEmpty(arrVMs) then
+		intPrefixLen=len(name_prefix)
 		
-		' Loop over the list of VMs and delete them, if its name matches the given refix 
-		for each vm in list 
-			dim l
-			l = left(vm(0), prefix_len)
-			if l = name_prefix then
-				wscript.echo "Found existing VM: " + vm(0) + ". Deleting it..."
-				delete_vm vm(0)
+		' Loop over the array arrVMs and delete them, if its name matches the given refix 
+		for each arrVM in arrVMs 
+			dim strLeft
+			strLeft = left(arrVM(0), intPrefixLen)
+			if strLeft = name_prefix then
+				wscript.echo "Found existing VM: " + arrVM(0) + ". Deleting it..."
+				delete_vm arrVM(0)
 			end if
 		next
 	end if
@@ -268,14 +300,14 @@ End Function
 
 
 Function start_vm (name)
-	' Just start it
+' Just start VM
 	'call_VBoxManage "startvm """ + name + """ --type headless"
 	call_VBoxManage "startvm """ + name + """"
 End Function
 
 
 Function mount_iso_to_vm(name, iso_path)
-	' Mount ISO to the VM
+' Mount ISO to the VM
 	call_VBoxManage "storageattach """ + name + """ --storagectl ""IDE"" --port 0 --device 0 --type dvddrive --medium """ + iso_path + """"
 End Function
 ' mount_iso_to_vm "foo", "D:\distr\iso\Ubuntu-x86_64-mini.iso"
