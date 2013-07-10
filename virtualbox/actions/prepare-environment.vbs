@@ -21,7 +21,7 @@ Set oReg = Nothing
 lstVBPaths.Add """" + strInstallDir + "VBoxManage.exe"""
 
 for each vbPath in lstVBPaths
-	if fso.fileExists (strip_quotes(vbPath)) then
+	if objFSO.fileExists (strip_quotes(vbPath)) then
 		VBoxManagePath = vbPath
 	end if
 next
@@ -34,7 +34,7 @@ end If
 
 ' Check for ISO image to be available
 wscript.echo "Checking for Fuel Web ISO image... "
-if not fso.fileExists (iso_path) then
+if not objFSO.fileExists (iso_path) then
 	wscript.echo "Fuel Web image is not found. Please download it and put under 'iso' directory."
 	Wscript.Quit
 end if
