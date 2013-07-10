@@ -1,7 +1,11 @@
 Option Explicit
+' This file contains additional functions
 
 
 Function strip_quotes (str)
+' Removes leading and/or trailing qoute if any
+' Inputs: string
+' Returns: string without
 	if left(str,1) = """" then 
 		str = right(str, len(str)-1)
 	end if
@@ -14,6 +18,9 @@ End Function
 
 
 function Find_And_Replace(strFilename, strFind, strReplace)
+' Open strFilename, search for strFind and relace it with strReplace
+' Returns: nothing
+
 	dim inputFile, strInputFile, outputFile, rxp
 	Set inputFile = CreateObject("Scripting.FileSystemObject").OpenTextFile(strFilename, 1)
 	strInputFile = inputFile.ReadAll
@@ -35,6 +42,8 @@ end function
 
 
 function get_first_file(folder,FileExtention)
+' Open folder and search for file with extention FileExtention
+' Returns: string filename
 	get_first_file = ""
 	dim ISOs, f
 	Set ISOs = CreateObject("Scripting.FileSystemObject").GetFolder(folder).Files
