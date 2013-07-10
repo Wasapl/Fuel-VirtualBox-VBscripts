@@ -1,5 +1,5 @@
 Option Explicit
-'This file contains the functions to manage VMs through VirtualBox CLI
+'This file contains the functions to manage VMs in through VirtualBox CLI
 
 
 Dim fso, objShell, VBoxManagePath
@@ -11,10 +11,6 @@ Set objShell = WScript.CreateObject("WScript.Shell")
 
 
 function get_vbox_value (command, parameter)
-' Parse output of given command and returns value of given parameter. If there is several values its separated by CR LF.
-' Inputs: command - VBoxManage.exe command
-'		parameter - name of parameter exactly from start of line to colon.
-' Returns: string separated by CR LF.
 	Dim objExec, m, rxp, line, value
 
 	Set rxp = New RegExp : rxp.Global = True : rxp.Multiline = False
@@ -42,16 +38,11 @@ end Function
 
 
 function get_vm_base_path ()
-' Returns name of folder there VMs are stored.
-' Example: "D:\VirtualBox VMs" (without qoutes)
 	get_vm_base_path = get_vbox_value ("list systemproperties", "Default machine folder")
 end Function
 
 
 function get_vms_list (command)
-' Reads list of VMs
-' Inputs: command should be one of strings: "list vms", "list runningvms"
-' Returns: an array of pairs (VM_name, VM_UUID)
 	Dim objExec, x,  line, lstProgID, m , match, rxp
 
 	' get_vms_list = Nothing
@@ -90,21 +81,16 @@ end Function
 
 
 function get_vms_present()
-' Returns list of existing VMs
-' Returns: an array of pairs (VM_name, VM_UUID)
 	get_vms_present = get_vms_list ("list vms")
 end Function
 
 
 Function get_vms_running()
-' Returns list of running VMs
-' Returns: an array of pairs (VM_name, VM_UUID)
 	get_vms_running = get_vms_list ("list runningvms")
 end Function
 
 
 function is_vm_present(name) 
-' Returns: boolean True if VM exists, False if VM not exists
 	dim list , isPresent , l
 	
 	isPresent = False
@@ -123,7 +109,6 @@ end Function
 
 
 function is_vm_running(name) 
-' Returns: boolean True if VM is running, False if VM is not running
 	dim list , isRunning , l
 	
 	isRunning = False
@@ -145,10 +130,6 @@ end Function
 
 
 Function call_VBoxManage (command)
-' executes VBoxManage.exe with given command.
-' Returns: array, where arr(0) is VBoxManage ExitCode
-' 			arr(1) - StdOut
-' 			arr(2) - StdErr
 	dim oExec
 	dim arr(2)
 	Set oExec = objShell.Exec(VBoxManagePath + " " + command)
@@ -179,13 +160,6 @@ End Function
 
 
 Function create_vm (name, nic, cpu_cores, memory_mb, disk_mb)
-' creates VM with given parameters
-' Inputs: name - string
-'			nic - string, name of network interface to connect to VM
-'			cpu_cores - integer number of cores for VM
-'			memory_mb - integer amount of memory in MB
-'			disk_mb - integer disk size in MB
-' Returns: nothing
 	dim objExec, ret, cmd
 
 	' Create virtual machine with the right name and type (assuming CentOS) 
@@ -228,8 +202,6 @@ end Function
 
 
 function add_disk_to_vm(vm_name, port, disk_mb) 
-' Creates disk with size disk_mb and attaches it to VM
-' Returns: nothing
 	dim vm_base_path, vm_disk_path, disk_name, disk_filename
 	vm_base_path = get_vm_base_path()
 	vm_disk_path = fso.BuildPath(vm_base_path, vm_name) 
@@ -250,8 +222,6 @@ end function
 
 
 Function delete_vm (name)
-' powers off and deletes VM
-' Returns: nothing
 	dim vm_base_path, vm_path
 	vm_base_path = get_vm_base_path()
 	vm_path = fso.BuildPath(vm_base_path, name) 
@@ -278,8 +248,6 @@ End Function
 
 
 Function delete_vms_multiple(name_prefix)
-' powers of and deletes all VM with given name prefix
-' Returns: nothing
 	dim list, prefix_len, vm
 	list = get_vms_present()
 	if not isEmpty(list) then
@@ -300,14 +268,14 @@ End Function
 
 
 Function start_vm (name)
-' Just start VM
+	' Just start it
 	'call_VBoxManage "startvm """ + name + """ --type headless"
 	call_VBoxManage "startvm """ + name + """"
 End Function
 
 
 Function mount_iso_to_vm(name, iso_path)
-' Mount ISO to the VM
+	' Mount ISO to the VM
 	call_VBoxManage "storageattach """ + name + """ --storagectl ""IDE"" --port 0 --device 0 --type dvddrive --medium """ + iso_path + """"
 End Function
 ' mount_iso_to_vm "foo", "D:\distr\iso\Ubuntu-x86_64-mini.iso"
