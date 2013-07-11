@@ -3,7 +3,8 @@ Option Explicit
 
 
 function get_hostonly_interfaces() 
-' Returns: 
+' Reads host-only interfaces names.
+' Returns: string separated by CR LF.
 	get_hostonly_interfaces = get_vbox_value ("list hostonlyifs", "Name")
 	'echo -e `VBoxManage list hostonlyifs | grep '^Name' | sed 's/^Name\:[ \t]*//' | uniq` 
 end function

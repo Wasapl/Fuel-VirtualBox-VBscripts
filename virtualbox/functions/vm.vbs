@@ -147,8 +147,8 @@ end Function
 Function call_VBoxManage (command)
 ' executes VBoxManage.exe with given command.
 ' Returns: array, where arr(0) is VBoxManage ExitCode
-' 			arr(1) - StdOut
-' 			arr(2) - StdErr
+' 			arr(1) - VBoxManage StdOut
+' 			arr(2) - VBoxManage StdErr
 	dim oExec
 	dim arr(2)
 	Set oExec = objShell.Exec(VBoxManagePath + " " + command)
@@ -214,7 +214,12 @@ end Function
 ' ret = create_vm("foo", "VirtualBox Host-Only Ethernet Adapter #8" ,1 , 512, 8192)
 
 
-Function add_nic_to_vm(name, id, nic) 
+Function add_nic_to_vm(name, id, nic)
+' add host-only network interface to VM with given name.
+' Inputs: name - VM name 
+' 		id - NIC number in VM. Possible values from 1 to 4
+'		nic - host-only network name
+' Returns: nothing
 	WScript.echo "Adding NIC to """ + name + """ and bridging with host NIC " + nic + "..."
 	dim cmd
 	' Configure network interfaces
@@ -229,6 +234,9 @@ end Function
 
 function add_disk_to_vm(vm_name, port, disk_mb)
 ' Creates disk with size disk_mb and attaches it to VM
+' Inputs: vm_name - VM name
+'		port - VM's SATA port number to connect disk to
+'		disk_mb - disk size in MB
 ' Returns: nothing
 	dim vm_base_path, vm_disk_path, disk_name, disk_filename
 	vm_base_path = get_vm_base_path()
@@ -250,7 +258,7 @@ end function
 
 
 Function delete_vm (name)
-' powers off and deletes VM
+' Powers off and deletes VM
 ' Returns: nothing
 	dim vm_base_path, vm_path
 	vm_base_path = get_vm_base_path()
@@ -301,6 +309,7 @@ End Function
 
 Function start_vm (name)
 ' Just start VM
+' Returns: nothing
 	'call_VBoxManage "startvm """ + name + """ --type headless"
 	call_VBoxManage "startvm """ + name + """"
 End Function
@@ -308,13 +317,15 @@ End Function
 
 Function mount_iso_to_vm(name, iso_path)
 ' Mount ISO to the VM
+' Returns: nothing
 	call_VBoxManage "storageattach """ + name + """ --storagectl ""IDE"" --port 0 --device 0 --type dvddrive --medium """ + iso_path + """"
 End Function
 ' mount_iso_to_vm "foo", "D:\distr\iso\Ubuntu-x86_64-mini.iso"
 
 
 Function enable_network_boot_for_vm(name)
-	' Set the right boot priority
+' Set the right boot priority
+' Returns: nothing
 	call_VBoxManage "modifyvm """ + name + """ --boot1 disk --boot2 net --boot3 none --boot4 none --nicbootprio1 1"
 End Function
 ' enable_network_boot_for_vm "foo"
