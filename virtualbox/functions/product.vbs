@@ -9,29 +9,29 @@ Set objShell = WScript.CreateObject( "WScript.Shell" )
 function is_product_vm_operational(ip, username, password)
 ' Log in into the VM, see if Puppet has completed its run
 ' Returns: boolean
-	dim oExec
+	dim objExec
 	dim arr(2), cmd
 	arr(1) = ""
 	arr(2) = ""
 	is_product_vm_operational = False
 	cmd =  "plink.exe -batch " + username + "@" + ip + " -pw " + password + " ""grep -o 'Finished catalog run' /var/log/puppet/bootstrap_admin_node.log"""
 	' wscript.echo cmd
-	Set oExec = objShell.Exec(cmd)
+	Set objExec = objShell.Exec(cmd)
 
 	' in case if plink ask for store key fingerprint
-	oExec.StdIn.Write "n" + VbCrLf
+	objExec.StdIn.Write "n" + VbCrLf
 	' reading stdout and stderr till plink terminate
-	Do While oExec.Status = 0
-		If Not oExec.StdOut.AtEndOfStream Then
-			arr(1) = arr(1) & oExec.StdOut.ReadAll
+	Do While objExec.Status = 0
+		If Not objExec.StdOut.AtEndOfStream Then
+			arr(1) = arr(1) & objExec.StdOut.ReadAll
 		End If
 
-		If Not oExec.StdErr.AtEndOfStream Then
-			arr(2) = arr(2) & oExec.StdErr.ReadAll
+		If Not objExec.StdErr.AtEndOfStream Then
+			arr(2) = arr(2) & objExec.StdErr.ReadAll
 		End If
 		WScript.Sleep 100
 	Loop
-	arr(0) = oExec.ExitCode
+	arr(0) = objExec.ExitCode
 
 	if arr(0) = 0 then
 		if instr(arr(1),"Finished catalog run") then

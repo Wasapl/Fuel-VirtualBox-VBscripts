@@ -3,24 +3,22 @@ Option Explicit
 
 
 Dim objFSO, objShell, VBoxManagePath
-dim ret
 Set objFSO = CreateObject("Scripting.FileSystemObject")
 Set objShell = WScript.CreateObject("WScript.Shell")
 ' use this VBoxManagePath initialization for debuging vm.vbs only
 ' VBoxManagePath = """C:\Program Files\Oracle\VirtualBox\VBoxManage.exe"""
 
-
-function get_vbox_value (command, parameter)
+function get_vbox_value (strCommand, strParameter)
 ' Parse output of given command and returns value of given parameter. If there is several values its separated by CR LF.
-' Inputs: command - VBoxManage.exe command
-'		parameter - name of parameter exactly from start of line to colon.
+' Inputs: strCommand - VBoxManage.exe command
+'		strParameter - name of parameter exactly from start of line to colon.
 ' Returns: string separated by CR LF.
 	Dim objExec, objMatches, objRXP, strLine, strValue
 
 	Set objRXP = New RegExp : objRXP.Global = True : objRXP.Multiline = False
-	objRXP.Pattern = "^" + parameter + ":?\s*(.+)$"
+	objRXP.Pattern = "^" + strParameter + ":?\s*(.+)$"
 
-	Set objExec = objShell.Exec(VBoxManagePath + " " + command)
+	Set objExec = objShell.Exec(VBoxManagePath + " " + strCommand)
 
 	Do
 		strLine = objExec.StdOut.ReadLine()
@@ -48,11 +46,11 @@ function get_vm_base_path ()
 end Function
 
 
-function get_vms_list (command)
+function get_vms_list (strCommand)
 ' Reads list of VMs
-' Inputs: command should be one of strings: "list vms", "list runningvms"
+' Inputs: strCommand should be one of strings: "list vms", "list runningvms"
 ' Returns: an array of pairs (VM_name, VM_UUID)
-	Dim objExec, strLine, lstProgID, objMatches , match, objRXP
+	Dim objExec, strLine, lstProgID, objMatches , objMatch, objRXP
 
 	' get_vms_list = Nothing
 
@@ -60,7 +58,7 @@ function get_vms_list (command)
 	objRXP.Pattern = """([^""]+)""\s+({[^}]+})"
 	Set lstProgID = CreateObject( "System.Collections.ArrayList" )
 	
-	Set objExec = objShell.Exec(VBoxManagePath + " " + command)
+	Set objExec = objShell.Exec(VBoxManagePath + " " + strCommand)
 
 	strLine = ""
 	Do
@@ -68,8 +66,8 @@ function get_vms_list (command)
 	Loop While Not objExec.Stdout.atEndOfStream
 	set objMatches = objRXP.Execute(strLine) 
 	if objMatches.count > 0 then
-		for each match in objMatches
-	 		lstProgID.Add match.SubMatches
+		for each objMatch in objMatches
+	 		lstProgID.Add objMatch.SubMatches
 		next
 		get_vms_list = lstProgID.ToArray
 	end if
@@ -103,16 +101,16 @@ Function get_vms_running()
 end Function
 
 
-function is_vm_present(name)
+function is_vm_present(strVmName)
 ' Returns: boolean True if VM exists, False if VM not exists
-	dim arrVMs , isPresent , vm
+	dim arrVMs , isPresent , VmPair
 	
 	isPresent = False
 
 	arrVMs = get_vms_present()
 	if not isEmpty(arrVMs) then
-		for each vm in arrVMs
-			if name = vm(0) then 
+		for each VmPair in arrVMs
+			if strVmName = VmPair(0) then 
 				isPresent = true
 			end if
 		next 
@@ -122,16 +120,16 @@ function is_vm_present(name)
 end Function
 
 
-function is_vm_running(name)
+function is_vm_running(strVmName)
 ' Returns: boolean True if VM is running, False if VM is not running
-	dim arrVMs , isRunning , vm
+	dim arrVMs , isRunning , VmPair
 	
 	isRunning = False
 
 	arrVMs = get_vms_running()
 	if not isEmpty(arrVMs) then
-		for each vm in arrVMs
-			if name = vm(0) then 
+		for each VmPair in arrVMs
+			if strVmName = VmPair(0) then 
 				isRunning = true
 			end if
 		next 
@@ -144,14 +142,14 @@ end Function
 ' end if
 
 
-Function call_VBoxManage (command)
+Function call_VBoxManage (strCommand)
 ' executes VBoxManage.exe with given command.
 ' Returns: array, where arr(0) is VBoxManage ExitCode
-' 			arr(1) - StdOut
-' 			arr(2) - StdErr
+' 			arr(1) - VBoxManage StdOut
+' 			arr(2) - VBoxManage StdErr
 	dim oExec
 	dim arr(2)
-	Set oExec = objShell.Exec(VBoxManagePath + " " + command)
+	Set oExec = objShell.Exec(VBoxManagePath + " " + strCommand)
 	arr(1) = ""
 	arr(2) = ""
 
@@ -168,7 +166,7 @@ Function call_VBoxManage (command)
 	arr(0) = oExec.ExitCode
 
 	if oExec.ExitCode <> 0 then
-		WScript.Echo "Error occured in command:" + vbCrLf + "VBoxManage " + command
+		WScript.Echo "Error occured in command:" + vbCrLf + "VBoxManage " + strCommand
 		WScript.Echo "stderr:" + vbCrLf + arr(2)
 		WScript.Echo "stdout:" + vbCrLf + arr(1)
 	end if
@@ -178,118 +176,126 @@ End Function
 ' wscript.echo ret(1)
 
 
-Function create_vm (name, nic, cpu_cores, memory_mb, disk_mb)
+Function create_vm (strVmName, strNetName, intCpuCores, intMemSize, intDiskSize)
 ' creates VM with given parameters
-' Inputs: name - string
-'			nic - string, name of network interface to connect to VM
-'			cpu_cores - integer number of cores for VM
-'			memory_mb - integer amount of memory in MB
-'			disk_mb - integer disk size in MB
+' Inputs: strVmName - string
+'			strNetName - string, name of network interface to connect to VM
+'			intCpuCores - integer number of cores for VM
+'			intMemSize - integer amount of memory in MB
+'			intDiskSize - integer disk size in MB
 ' Returns: nothing
-	dim objExec, ret, cmd
+	dim objExec, cmd
 
 	' Create virtual machine with the right name and type (assuming CentOS) 
-	'VBoxManage createvm --name $name --ostype RedHat_64 --register
-	cmd = " createvm --name """ + name + """ --ostype RedHat_64 --register"
+	'VBoxManage createvm --name $strVmName --ostype RedHat_64 --register
+	cmd = " createvm --name """ + strVmName + """ --ostype RedHat_64 --register"
 	call_VBoxManage cmd
 	' Set the real-time clock (RTC) operate in UTC time
-	'VBoxManage modifyvm $name --rtcuseutc on --memory $memory_mb --cpus $cpu_cores
-	cmd = " modifyvm """ + name + """ --rtcuseutc on --memory " & memory_mb & " --cpus " & cpu_cores
+	'VBoxManage modifyvm $strVmName --rtcuseutc on --memory $intMemSize --cpus $intCpuCores
+	cmd = " modifyvm """ + strVmName + """ --rtcuseutc on --memory " & intMemSize & " --cpus " & intCpuCores
 	call_VBoxManage cmd
 	
 	' Configure main network interface
-	add_nic_to_vm name, 1, nic
+	add_nic_to_vm strVmName, 1, strNetName
 	
 	' Configure storage controllers
-	'VBoxManage storagectl $name --name 'IDE' --add ide
-	cmd = " storagectl """ + name + """ --name ""IDE"" --add ide"
+	'VBoxManage storagectl $strVmName --name 'IDE' --add ide
+	cmd = " storagectl """ + strVmName + """ --name ""IDE"" --add ide"
 	call_VBoxManage cmd
-	'VBoxManage storagectl $name --name 'SATA' --add sata
-	cmd = " storagectl """ + name + """ --name ""SATA"" --add sata"
+	'VBoxManage storagectl $strVmName --name 'SATA' --add sata
+	cmd = " storagectl """ + strVmName + """ --name ""SATA"" --add sata"
 	call_VBoxManage cmd
 	
 	' Create and attach the main hard drive
-	add_disk_to_vm name, 0, disk_mb
+	add_disk_to_vm strVmName, 0, intDiskSize
 end Function
 ' ret = create_vm("foo", "VirtualBox Host-Only Ethernet Adapter #8" ,1 , 512, 8192)
 
 
-Function add_nic_to_vm(name, id, nic) 
-	WScript.echo "Adding NIC to """ + name + """ and bridging with host NIC " + nic + "..."
+Function add_nic_to_vm(strVmName, intNicId, strNetName)
+' add host-only network interface to VM with given name.
+' Inputs: strVmName - VM name 
+' 		intNicId - NIC number in VM. Possible values from 1 to 4
+'		strNetName - host-only network name
+' Returns: nothing
+	WScript.echo "Adding NIC to """ + strVmName + """ and bridging with host NIC " + strNetName + "..."
 	dim cmd
 	' Configure network interfaces
-	'VBoxManage modifyvm $name --nic${id} hostonly --hostonlyadapter${id} $nic --nictype${id} Am79C973 --cableconnected${id} on --macaddress${id} auto
-	cmd = " modifyvm """ + name + """ --nic" & id & " hostonly --hostonlyadapter" & id & " """ & nic & """ --nictype" & id & " Am79C973 --cableconnected" & id & " on --macaddress" & id & " auto"
+	'VBoxManage modifyvm $strVmName --nic${intNicId} hostonly --hostonlyadapter${intNicId} $nic --nictype${intNicId} Am79C973 --cableconnected${intNicId} on --macaddress${intNicId} auto
+	cmd = " modifyvm """ + strVmName + """ --nic" & intNicId & " hostonly --hostonlyadapter" & intNicId & " """ & strNetName & """ --nictype" & intNicId & " Am79C973 --cableconnected" & intNicId & " on --macaddress" & intNicId & " auto"
 	call_VBoxManage cmd
-	'VBoxManage controlvm $name setlinkstate${id} on
-	cmd = " controlvm """ + name + """ setlinkstate" & id & " on"
+	'VBoxManage controlvm $strVmName setlinkstate${intNicId} on
+	cmd = " controlvm """ + strVmName + """ setlinkstate" & intNicId & " on"
 	call_VBoxManage cmd
 end Function
 
 
-function add_disk_to_vm(vm_name, port, disk_mb)
-' Creates disk with size disk_mb and attaches it to VM
+function add_disk_to_vm(strVmName, intPort, intDiskSize)
+' Creates disk with size intDiskSize and attaches it to VM
+' Inputs: strVmName - VM name
+'		intPort - VM's SATA port number to connect disk to
+'		intDiskSize - disk size in MB
 ' Returns: nothing
-	dim vm_base_path, vm_disk_path, disk_name, disk_filename
-	vm_base_path = get_vm_base_path()
-	vm_disk_path = objFSO.BuildPath(vm_base_path, vm_name) 
-	disk_name = vm_name & "_" & port
-	disk_filename = disk_name & ".vdi"
+	dim strVmBasePath, strVmDiskPath, strDiskName, strDiskFilename
+	strVmBasePath = get_vm_base_path()
+	strVmDiskPath = objFSO.BuildPath(strVmBasePath, strVmName) 
+	strDiskName = strVmName & "_" & intPort
+	strDiskFilename = strDiskName & ".vdi"
 	
-	wscript.echo "Adding disk to """ + vm_name + """, with size " & disk_mb & " Mb..."
+	wscript.echo "Adding disk to """ + strVmName + """, with size " & intDiskSize & " Mb..."
 	dim cmd
-	'VBoxManage createhd --filename "$vm_disk_path/$disk_name" --size $disk_mb --format VDI
-	cmd = " createhd --filename """ + objFSO.BuildPath(vm_disk_path,disk_name) + """ --size " & disk_mb & " --format VDI"
+	'VBoxManage createhd --filename "$strVmDiskPath/$strDiskName" --size $intDiskSize --format VDI
+	cmd = " createhd --filename """ + objFSO.BuildPath(strVmDiskPath, strDiskName) + """ --size " & intDiskSize & " --format VDI"
 	WScript.echo cmd
 	call_VBoxManage cmd
-	'VBoxManage storageattach $vm_name --storagectl 'SATA' --port $port --device 0 --type hdd --medium "$vm_disk_path/$disk_filename"
-	cmd = " storageattach """ + vm_name + """ --storagectl ""SATA"" --port " & port & " --device 0 --type hdd --medium """ + objFSO.BuildPath(vm_disk_path,disk_filename) + """ "
+	'VBoxManage storageattach $strVmName --storagectl 'SATA' --port $intPort --device 0 --type hdd --medium "$strVmDiskPath/$strDiskFilename"
+	cmd = " storageattach """ + strVmName + """ --storagectl ""SATA"" --port " & intPort & " --device 0 --type hdd --medium """ + objFSO.BuildPath(strVmDiskPath,strDiskFilename) + """ "
 	WScript.echo cmd
 	call_VBoxManage cmd
 end function
 
 
-Function delete_vm (name)
-' powers off and deletes VM
+Function delete_vm(strVmName)
+' Powers off and deletes VM
 ' Returns: nothing
-	dim vm_base_path, vm_path
-	vm_base_path = get_vm_base_path()
-	vm_path = objFSO.BuildPath(vm_base_path, name) 
+	dim strVmBasePath, strVmPath
+	strVmBasePath = get_vm_base_path()
+	strVmPath = objFSO.BuildPath(strVmBasePath, strVmName) 
 
 	dim cmd
 
 	' Power off VM, if it's running
-	if is_vm_running(name) then
-		cmd = "controlvm " + name + " poweroff"
+	if is_vm_running(strVmName) then
+		cmd = "controlvm " + strVmName + " poweroff"
 		call_VBoxManage cmd
 	end if
 
 	' Virtualbox does not fully delete VM file structure, so we need to delete the corresponding directory with files as well 
 
-	wscript.echo "Deleting existing virtual machine " + name + "..."
-	cmd = "unregistervm " + name + " --delete"
+	wscript.echo "Deleting existing virtual machine " + strVmName + "..."
+	cmd = "unregistervm " + strVmName + " --delete"
 	call_VBoxManage cmd
-	if objFSO.FolderExists(vm_path) then
+	if objFSO.FolderExists(strVmPath) then
 		on error resume next
-		objFSO.DeleteFolder vm_path, True
+		objFSO.DeleteFolder strVmPath, True
 		On Error GoTo 0
 	end if
 End Function
 
 
-Function delete_vms_multiple(name_prefix)
+Function delete_vms_multiple(strVmNamePrefix)
 ' powers of and deletes all VM with given name prefix
 ' Returns: nothing
 	dim arrVMs, intPrefixLen, arrVM
 	arrVMs = get_vms_present()
 	if not isEmpty(arrVMs) then
-		intPrefixLen=len(name_prefix)
+		intPrefixLen=len(strVmNamePrefix)
 		
 		' Loop over the array arrVMs and delete them, if its name matches the given refix 
 		for each arrVM in arrVMs 
 			dim strLeft
 			strLeft = left(arrVM(0), intPrefixLen)
-			if strLeft = name_prefix then
+			if strLeft = strVmNamePrefix then
 				wscript.echo "Found existing VM: " + arrVM(0) + ". Deleting it..."
 				delete_vm arrVM(0)
 			end if
@@ -299,23 +305,26 @@ End Function
 'delete_vms_multiple "foo"
 
 
-Function start_vm (name)
+Function start_vm (strVmName)
 ' Just start VM
-	'call_VBoxManage "startvm """ + name + """ --type headless"
-	call_VBoxManage "startvm """ + name + """"
+' Returns: nothing
+	'call_VBoxManage "startvm """ + strVmName + """ --type headless"
+	call_VBoxManage "startvm """ + strVmName + """"
 End Function
 
 
-Function mount_iso_to_vm(name, iso_path)
+Function mount_iso_to_vm(strVmName, strIsoPath)
 ' Mount ISO to the VM
-	call_VBoxManage "storageattach """ + name + """ --storagectl ""IDE"" --port 0 --device 0 --type dvddrive --medium """ + iso_path + """"
+' Returns: nothing
+	call_VBoxManage "storageattach """ + strVmName + """ --storagectl ""IDE"" --port 0 --device 0 --type dvddrive --medium """ + strIsoPath + """"
 End Function
 ' mount_iso_to_vm "foo", "D:\distr\iso\Ubuntu-x86_64-mini.iso"
 
 
-Function enable_network_boot_for_vm(name)
-	' Set the right boot priority
-	call_VBoxManage "modifyvm """ + name + """ --boot1 disk --boot2 net --boot3 none --boot4 none --nicbootprio1 1"
+Function enable_network_boot_for_vm(strVmName)
+' Set the right boot priority
+' Returns: nothing
+	call_VBoxManage "modifyvm """ + strVmName + """ --boot1 disk --boot2 net --boot3 none --boot4 none --nicbootprio1 1"
 End Function
 ' enable_network_boot_for_vm "foo"
 ' start_vm "foo"
