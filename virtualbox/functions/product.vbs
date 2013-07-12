@@ -16,7 +16,6 @@ function is_product_vm_operational(ip, username, password)
 	is_product_vm_operational = False
 	' we cannot use -batch parameter since plink do not establish connection if server's fingerprint does not match stored ones.
 	cmd =  "plink.exe " + username + "@" + ip + " -pw " + password + " ""grep -o 'Finished catalog run' /var/log/puppet/bootstrap_admin_node.log"""
-	' wscript.echo cmd
 	Set objExec = objShell.Exec(cmd)
 
 	' reading stdout and stderr till plink terminate
@@ -27,25 +26,19 @@ function is_product_vm_operational(ip, username, password)
 		Do While Not ObjExec.Stderr.atEndOfStream
 			strFromProc = ObjExec.Stderr.ReadLine()
 			arr(2) = arr(2) & strFromProc
-			WScript.Echo "ERR " & strFromProc 
 			if instr(strFromProc,"The server's host key is not cached") > 0 then
 				objExec.StdIn.Write "n" + VbCrLf
-				wscript.echo "writing N"
 			end if
 			if instr(strFromProc,"WARNING - POTENTIAL SECURITY BREACH") > 0 then
 				objExec.StdIn.Write "y" + VbCrLf
-				wscript.echo "writing Y"
 			end if
 		Loop
-		wscript.echo "!ERR fin!"
 		' Here we have another trouble due to plink do not open stdout until its needed. And if stdout is not open atEndOfStream() hangs itself.
 		' That is why we check stderr first.
 		Do While Not ObjExec.Stdout.atEndOfStream
 			strFromProc = ObjExec.Stdout.ReadLine()
 			arr(1) = arr(1) & strFromProc
-			WScript.Echo "OUT " & strFromProc 
 		Loop
-		wscript.echo "!OUT fin!"
 		WScript.Sleep 100
 	Loop
 	arr(0) = objExec.ExitCode
@@ -53,7 +46,6 @@ function is_product_vm_operational(ip, username, password)
 	if arr(0) = 0 then
 		if instr(arr(1),"Finished catalog run") then
 			is_product_vm_operational = True
-			' wscript.echo "ok"
 		else
 			wscript.echo "Not finished catalog run"
 			wscript.echo "stdout:" + vbCrLf + arr(1)
