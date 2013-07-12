@@ -14,21 +14,38 @@ function is_product_vm_operational(ip, username, password)
 	arr(1) = ""
 	arr(2) = ""
 	is_product_vm_operational = False
-	cmd =  "plink.exe -batch " + username + "@" + ip + " -pw " + password + " ""grep -o 'Finished catalog run' /var/log/puppet/bootstrap_admin_node.log"""
+	' we cannot use -batch parameter since plink do not establish connection if server's fingerprint does not match stored ones.
+	cmd =  "plink.exe " + username + "@" + ip + " -pw " + password + " ""grep -o 'Finished catalog run' /var/log/puppet/bootstrap_admin_node.log"""
 	' wscript.echo cmd
 	Set objExec = objShell.Exec(cmd)
 
-	' in case if plink ask for store key fingerprint
-	objExec.StdIn.Write "n" + VbCrLf
 	' reading stdout and stderr till plink terminate
+	dim strFromProc
 	Do While objExec.Status = 0
-		If Not objExec.StdOut.AtEndOfStream Then
-			arr(1) = arr(1) & objExec.StdOut.ReadAll
-		End If
-
-		If Not objExec.StdErr.AtEndOfStream Then
-			arr(2) = arr(2) & objExec.StdErr.ReadAll
-		End If
+		' We have trouble here becouse ReadLine() and ReadAll() waits for CR LF as ending of last line of plink error massage.
+		' That is why we write N or Y in stdin right after first line of message came.
+		Do While Not ObjExec.Stderr.atEndOfStream
+			strFromProc = ObjExec.Stderr.ReadLine()
+			arr(2) = arr(2) & strFromProc
+			WScript.Echo "ERR " & strFromProc 
+			if instr(strFromProc,"The server's host key is not cached") > 0 then
+				objExec.StdIn.Write "n" + VbCrLf
+				wscript.echo "writing N"
+			end if
+			if instr(strFromProc,"WARNING - POTENTIAL SECURITY BREACH") > 0 then
+				objExec.StdIn.Write "y" + VbCrLf
+				wscript.echo "writing Y"
+			end if
+		Loop
+		wscript.echo "!ERR fin!"
+		' Here we have another trouble due to plink do not open stdout until its needed. And if stdout is not open atEndOfStream() hangs itself.
+		' That is why we check stderr first.
+		Do While Not ObjExec.Stdout.atEndOfStream
+			strFromProc = ObjExec.Stdout.ReadLine()
+			arr(1) = arr(1) & strFromProc
+			WScript.Echo "OUT " & strFromProc 
+		Loop
+		wscript.echo "!OUT fin!"
 		WScript.Sleep 100
 	Loop
 	arr(0) = objExec.ExitCode
@@ -47,7 +64,7 @@ function is_product_vm_operational(ip, username, password)
 		WScript.Echo "stdout:" + vbCrLf + arr(1)
 	end if
 end Function 
-' is_product_vm_operational "10.20.0.2", "root", "r00tme"
+wscript.echo is_product_vm_operational ("10.20.0.2", "root", "r00tme")
 
 
 function wait_for_product_vm_to_install(ip, username, password)
