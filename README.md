@@ -50,5 +50,5 @@ of Fuel-web install.
 created and rewrite it in `config.vbs`.
 4.  Windows do not allow IP addresses from range 240.0.0.0/4. You have to change value of `host_nic_ip(1)` in
 `config.vbs`, and change public and floating IPs in **FuelWeb Dashboard** when scripts finished its work.
-5.  Sometimes VBoxManage can't properly configure IP at hostonly interface. You have to check interfaces 
-attributes after its creation. Restart script if interfaces IPs are wrong.
+5.  Sometimes VBoxManage can't properly configure IP at hostonly network. In that case scripts are trying to recreate 
+hostonly network several times. 
