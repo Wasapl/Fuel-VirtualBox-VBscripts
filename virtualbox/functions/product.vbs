@@ -56,7 +56,7 @@ function is_product_vm_operational(ip, username, password)
 		WScript.Echo "stdout:" + vbCrLf + arr(1)
 	end if
 end Function 
-wscript.echo is_product_vm_operational ("10.20.0.2", "root", "r00tme")
+'wscript.echo is_product_vm_operational ("10.20.0.2", "root", "r00tme")
 
 
 function wait_for_product_vm_to_install(ip, username, password)
