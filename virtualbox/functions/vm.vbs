@@ -234,9 +234,9 @@ Function add_hostonly_adapter_to_vm(strVmName, intNicId, strNetName)
 ' Returns: nothing
 	WScript.echo "Adding hostonly adapter to """ + strVmName + """ and bridging with host NIC " + strNetName + "..."
 	dim cmd
-	' Configure network interfaces
-	'VBoxManage modifyvm $strVmName --nic${intNicId} hostonly --hostonlyadapter${intNicId} $nic --nictype${intNicId} Am79C973 --cableconnected${intNicId} on --macaddress${intNicId} auto
-	cmd = " modifyvm """ + strVmName + """ --nic" & intNicId & " hostonly --hostonlyadapter" & intNicId & " """ & strNetName & """ --nictype" & intNicId & " Am79C973 --cableconnected" & intNicId & " on --macaddress" & intNicId & " auto"
+	' Add Intel PRO/1000 MT Desktop (82540EM) card to VM. The card is 1Gbps.
+	'VBoxManage modifyvm $strVmName --nic${intNicId} hostonly --hostonlyadapter${intNicId} $nic --nictype${intNicId} 82540EM --cableconnected${intNicId} on --macaddress${intNicId} auto
+	cmd = " modifyvm """ + strVmName + """ --nic" & intNicId & " hostonly --hostonlyadapter" & intNicId & " """ & strNetName & """ --nictype" & intNicId & " 82540EM --cableconnected" & intNicId & " on --macaddress" & intNicId & " auto"
 	call_VBoxManage cmd
 	'VBoxManage controlvm $strVmName setlinkstate${intNicId} on
 	cmd = " controlvm """ + strVmName + """ setlinkstate" & intNicId & " on"
