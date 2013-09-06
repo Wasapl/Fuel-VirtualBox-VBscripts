@@ -1,1 +1,1 @@
-Put the ISO into this directory
+Put ISO in this folder
