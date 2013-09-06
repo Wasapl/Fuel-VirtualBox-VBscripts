@@ -246,7 +246,7 @@ Function add_hostonly_adapter_to_vm(strVmName, intNicId, strNetName)
 end Function
 
 
-Function add_nat_to_vm(strVmName, intNicId, strNetName)
+Function add_nat_adapter_to_vm(strVmName, intNicId, strNetName)
 ' add NAT network interface to VM with given name.
 ' Inputs: strVmName - VM name 
 ' 		intNicId - NIC number in VM. Possible values from 1 to 4
