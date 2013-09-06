@@ -23,7 +23,14 @@ if is_vm_present(name) then
 	delete_vm name
 end if
 create_vm name, host_nic_name(0), vm_master_cpu_cores, vm_master_memory_mb, vm_master_disk_mb
+
+' Add additional NICs
 add_hostonly_adapter_to_vm name, 2, host_nic_name(1)
+
+' Add NAT adapter for internet access
+add_nat_adapter_to_vm name, 3, vm_master_nat_network
+
+' Mount ISO with installer
 mount_iso_to_vm name, iso_path
 
 ' Start virtual machine with the master node
