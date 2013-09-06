@@ -32,7 +32,7 @@ host_nic_ip(0) = "10.20.0.1"
 host_nic_mask(0) = "255.255.255.0"
 
 host_nic_name(1)="VirtualBox Host-Only Ethernet Adapter #3"
-host_nic_ip(1) = "240.0.1.1"
+host_nic_ip(1) = "172.16.1.1"
 host_nic_mask(1) = "255.255.255.0"
 
 host_nic_name(2)="VirtualBox Host-Only Ethernet Adapter #4"
