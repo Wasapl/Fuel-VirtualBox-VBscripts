@@ -84,3 +84,15 @@ function wait_for_product_vm_to_install(ip, username, password)
 	loop
 end Function
 'wait_for_product_vm_to_install "10.20.0.2", "root", "r00tme"
+
+
+function print_no_internet_connectivity_banner()
+
+	echo "############################################################"
+	echo "# WARNING: some of the Fuel features will not be supported #"
+	echo "#          (e.g. RHOS/RHEL integration) because there is   #"
+	echo "#          no Internet connectivity                        #"
+	echo "############################################################"
+
+end Function
+
