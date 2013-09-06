@@ -246,6 +246,24 @@ Function add_hostonly_adapter_to_vm(strVmName, intNicId, strNetName)
 end Function
 
 
+Function add_nat_to_vm(strVmName, intNicId, strNetName)
+' add NAT network interface to VM with given name.
+' Inputs: strVmName - VM name 
+' 		intNicId - NIC number in VM. Possible values from 1 to 4
+'		strNetName - NAT network name
+' Returns: nothing
+	WScript.echo "Adding NAT adapter to """ + strVmName + """ for outbound network access through the host system..."
+	dim cmd
+	' Add Intel PRO/1000 MT Desktop (82540EM) card to VM. The card is 1Gbps.
+	'VBoxManage modifyvm $name --nic${id} nat --nictype${id} 82540EM --cableconnected${id} on --macaddress${id} auto --natnet${id} "${nat_network}"
+	cmd = " modifyvm """ + strVmName + """ --nic" & intNicId & " nat --nictype" & intNicId & " 82540EM --cableconnected" & intNicId & " on --macaddress" & intNicId & " auto --natnet" & intNicId & " """ & strNetName & """"
+	call_VBoxManage cmd
+	'VBoxManage controlvm $strVmName setlinkstate${intNicId} on
+	cmd = " controlvm """ + strVmName + """ setlinkstate" & intNicId & " on"
+	call_VBoxManage cmd
+end Function
+
+
 function add_disk_to_vm(strVmName, intPort, intDiskSize)
 ' Creates disk with size intDiskSize and attaches it to VM
 ' Inputs: strVmName - VM name
