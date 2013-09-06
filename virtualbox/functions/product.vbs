@@ -88,11 +88,11 @@ end Function
 
 function print_no_internet_connectivity_banner()
 
-	echo "############################################################"
-	echo "# WARNING: some of the Fuel features will not be supported #"
-	echo "#          (e.g. RHOS/RHEL integration) because there is   #"
-	echo "#          no Internet connectivity                        #"
-	echo "############################################################"
+	wscript.echo "############################################################"
+	wscript.echo "# WARNING: some of the Fuel features will not be supported #"
+	wscript.echo "#          (e.g. RHOS/RHEL integration) because there is   #"
+	wscript.echo "#          no Internet connectivity                        #"
+	wscript.echo "############################################################"
 
 end Function
 
