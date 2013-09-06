@@ -216,10 +216,10 @@ Function create_vm (strVmName, strNetName, intCpuCores, intMemSize, intDiskSize)
 	
 	' Configure storage controllers
 	'VBoxManage storagectl $strVmName --name 'IDE' --add ide
-	cmd = " storagectl """ + strVmName + """ --name ""IDE"" --add ide"
+	cmd = " storagectl """ + strVmName + """ --name ""IDE"" --add ide --hostiocache on"
 	call_VBoxManage cmd
 	'VBoxManage storagectl $strVmName --name 'SATA' --add sata
-	cmd = " storagectl """ + strVmName + """ --name ""SATA"" --add sata"
+	cmd = " storagectl """ + strVmName + """ --name ""SATA"" --add sata --hostiocache on"
 	call_VBoxManage cmd
 	
 	' Create and attach the main hard drive
