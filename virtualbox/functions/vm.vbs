@@ -210,7 +210,7 @@ Function create_vm (strVmName, strNetName, intCpuCores, intMemSize, intDiskSize)
 	call_VBoxManage cmd
 	
 	' Configure main network interface
-	add_nic_to_vm strVmName, 1, strNetName
+	add_hostonly_adapter_to_vm strVmName, 1, strNetName
 	
 	' Configure storage controllers
 	'VBoxManage storagectl $strVmName --name 'IDE' --add ide
@@ -226,13 +226,13 @@ end Function
 ' ret = create_vm("foo", "VirtualBox Host-Only Ethernet Adapter #8" ,1 , 512, 8192)
 
 
-Function add_nic_to_vm(strVmName, intNicId, strNetName)
+Function add_hostonly_adapter_to_vm(strVmName, intNicId, strNetName)
 ' add host-only network interface to VM with given name.
 ' Inputs: strVmName - VM name 
 ' 		intNicId - NIC number in VM. Possible values from 1 to 4
 '		strNetName - host-only network name
 ' Returns: nothing
-	WScript.echo "Adding NIC to """ + strVmName + """ and bridging with host NIC " + strNetName + "..."
+	WScript.echo "Adding hostonly adapter to """ + strVmName + """ and bridging with host NIC " + strNetName + "..."
 	dim cmd
 	' Configure network interfaces
 	'VBoxManage modifyvm $strVmName --nic${intNicId} hostonly --hostonlyadapter${intNicId} $nic --nictype${intNicId} Am79C973 --cableconnected${intNicId} on --macaddress${intNicId} auto
