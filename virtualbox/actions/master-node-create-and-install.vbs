@@ -37,7 +37,6 @@ mount_iso_to_vm name, iso_path
 start_vm name
 
 ' Wait until the machine gets installed and Puppet completes its run
-' TODO there is no expect in bare Windows, so have to figure out something else...
 wscript.echo vm_master_ip+ " " + vm_master_username+ " " + vm_master_password
 wait_for_product_vm_to_install vm_master_ip, vm_master_username, vm_master_password
 
