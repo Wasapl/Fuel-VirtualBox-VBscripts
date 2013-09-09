@@ -14,8 +14,9 @@
 
 
 Sub Import(strFile)
-	Set objFs = CreateObject("Scripting.FileSystemObject")
-	Set objFile = objFs.OpenTextFile(strFile)
+	Dim objFS, objFile, strCode
+	Set objFS = CreateObject("Scripting.FileSystemObject")
+	Set objFile = objFS.OpenTextFile(strFile)
 	strCode = objFile.ReadAll
 	objFile.Close
 	ExecuteGlobal strCode
