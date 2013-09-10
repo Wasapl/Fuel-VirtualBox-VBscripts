@@ -86,6 +86,101 @@ end Function
 'wait_for_product_vm_to_install "10.20.0.2", "root", "r00tme"
 
 
+function enable_outbound_network_for_product_vm(ip, username, password, interface_id, gateway_ip)
+	' Subtract one to get ethX index (0-based) from the VirtualBox inde1x (from 1 to 4)
+	interface_id = interface_id - 1
+
+	dim cmd, objExec, ret, strLine, nameserver, DnsServer
+
+	' Check for internet access on the host system
+	wscript.echo "Checking for internet connectivity on the host system... "
+	dim websites(1), website
+	websites(0) = "google.com"
+	websites(1) = "wikipedia.com"
+	for each website in websites
+		cmd = "ping -n 5 " + website
+		set objExec = objShell.Exec(cmd)
+		Do While objExec.Status = 0
+			' strLine = objExec.StdOut.ReadLine()
+			' wscript.echo strLine
+			WScript.Sleep 10
+		Loop
+		ret = objExec.ExitCode
+		if ret = 0 then
+			exit for
+		end if
+	next
+
+	if ret = 0 then
+		wscript.echo "OK"
+	else
+		wscript.echo "FAIL"
+		print_no_internet_connectivity_banner
+		enable_outbound_network_for_product_vm = false
+		exit function
+	end if
+
+	' Check host nameserver configuration
+	wscript.echo "Checking local DNS configuration... "
+	cmd = "netsh interface ip show dns"
+	set objExec = objShell.Exec(cmd)
+	nameserver = ""
+	Do While objExec.Status = 0
+		Do While Not objExec.StdOut.atEndOfStream
+			strLine = objExec.StdOut.ReadLine()
+			if instr(strLine,"DNS") > 0 then
+				 DnsServer = trim(right(strLine,len(strLine)-instr(strLine,":")))
+				if DnsServer <> "None" then
+					nameserver = "nameserver " + DnsServer + vbCrLf
+				end if
+			end if
+		Loop
+		WScript.Sleep 10
+	Loop
+	wscript.echo nameserver
+
+	' Enable internet access on inside the VMs
+	wscript.echo "Enabling outbound network/internet access for the product VM... "
+
+	cmd = "file=/etc/sysconfig/network-scripts/ifcfg-eth" & interface_id & ";" & _
+	"hwaddr=$(grep HWADDR $file);" & _
+	"uuid=$(grep UUID $file); " & _
+	"echo -e \""$hwaddr\n$uuid\nDEVICE=eth" & interface_id & "\nTYPE=Ethernet\nONBOOT=yes\nNM_CONTROLLED=no\nBOOTPROTO=dhcp\nPEERDNS=no\"" > $file;" & _
+	"sed \""s/GATEWAY=.*/GATEWAY=" & gateway_ip & "/g\"" -i /etc/sysconfig/network;" & _
+	"echo -e \""" + nameserver + "\"" >/etc/dnsmasq.upstream;" & _
+	"service network restart >/dev/null 2>&1;" & _
+	"service dnsmasq restart >/dev/null 2>&1;" & _
+	"for i in 1 2 3 4 5; do ping -c 2 google.com || ping -c 2 wikipedia.com || sleep 2; done"
+
+	' we cannot use -batch parameter since plink do not establish connection if server's fingerprint does not match stored ones.
+	cmd =  "..\plink.exe " + username + "@" + ip + " -pw " + password + " """ + cmd + """"
+	Set objExec = objShell.Exec(cmd)
+
+	' reading stdout and stderr till plink terminate
+	dim isOk
+	isOk = false
+	Do While objExec.Status = 0
+		Do While Not objExec.StdOut.atEndOfStream
+			strLine = objExec.StdOut.ReadLine()
+			if instr(strLine,"icmp_seq=") > 0 then
+				isOk = true
+			end if
+		Loop
+		WScript.Sleep 10
+	Loop
+
+	if isOk then
+		wscript.echo "OK"
+		enable_outbound_network_for_product_vm = true
+	else
+		wscript.echo "FAIL"
+		print_no_internet_connectivity_banner
+		enable_outbound_network_for_product_vm = false
+	end if
+end function
+' enable_outbound_network_for_product_vm "10.20.0.2", "root", "r00tme", 3, "192.168.200.2"
+
+
 function print_no_internet_connectivity_banner()
 
 	wscript.echo "############################################################"
