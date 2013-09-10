@@ -204,10 +204,11 @@ Function create_vm (strVmName, strNetName, intCpuCores, intMemSize, intDiskSize)
 	'VBoxManage createvm --name $strVmName --ostype RedHat_64 --register
 	cmd = " createvm --name """ + strVmName + """ --ostype RedHat_64 --register"
 	call_VBoxManage cmd
+
 	' Set the real-time clock (RTC) operate in UTC time
 	' Set memory and CPU parameters
 	' Set video memory to 16MB, so VirtualBox does not complain about "non-optimal" settings in the UI
-	'VBoxManage modifyvm $strVmName --rtcuseutc on --memory $intMemSize --cpus $intCpuCores
+	'VBoxManage modifyvm $strVmName --rtcuseutc on --memory $intMemSize --cpus $intCpuCores --vram 16
 	cmd = " modifyvm """ + strVmName + """ --rtcuseutc on --memory " & intMemSize & " --cpus " & intCpuCores & " --vram 16"
 	call_VBoxManage cmd
 	
