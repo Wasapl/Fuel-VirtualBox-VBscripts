@@ -153,7 +153,7 @@ function enable_outbound_network_for_product_vm(ip, username, password, interfac
 	"for i in 1 2 3 4 5; do ping -c 2 google.com || ping -c 2 wikipedia.com || sleep 2; done"
 
 	' we cannot use -batch parameter since plink do not establish connection if server's fingerprint does not match stored ones.
-	cmd =  "..\plink.exe " + username + "@" + ip + " -pw " + password + " """ + cmd + """"
+	cmd =  "plink.exe " + username + "@" + ip + " -pw " + password + " """ + cmd + """"
 	Set objExec = objShell.Exec(cmd)
 
 	' reading stdout and stderr till plink terminate
