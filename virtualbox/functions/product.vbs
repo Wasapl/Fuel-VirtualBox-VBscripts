@@ -13,7 +13,9 @@ Option Explicit
 '    License for the specific language governing permissions and limitations
 '    under the License.
 
-' This file contains the functions to connect to the product VM and see if it became operational
+' This file contains the functions for connecting to Fuel VM, checking if the installation process completed
+' and Fuel became operational, and also enabling outbound network/internet access for this VM through the
+' host system
 
 
 Dim objShell
