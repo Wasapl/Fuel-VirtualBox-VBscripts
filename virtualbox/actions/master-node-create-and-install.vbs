@@ -40,5 +40,8 @@ start_vm name
 wscript.echo vm_master_ip+ " " + vm_master_username+ " " + vm_master_password
 wait_for_product_vm_to_install vm_master_ip, vm_master_username, vm_master_password
 
+'' Enable outbound network/internet access for the machine
+enable_outbound_network_for_product_vm vm_master_ip, vm_master_username, vm_master_password, 3, vm_master_nat_gateway
+
 ' Report success
 wscript.echo "Master node has been installed."
