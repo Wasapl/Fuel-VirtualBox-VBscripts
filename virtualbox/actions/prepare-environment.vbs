@@ -46,6 +46,27 @@ else
 	wscript.echo "Ok"
 end If 
 
+' Check for VirtualBox Extension Pack
+wscript.echo "Checking for VirtualBox Extension Pack... "
+Dim objExec, isOk
+Set objExec = WScript.CreateObject("WScript.Shell").Exec(VBoxManagePath + " list extpacks")
+isOk = false
+Do While objExec.Status = 0
+	Do While Not objExec.StdOut.atEndOfStream
+		strLine = objExec.StdOut.ReadLine()
+		if instr(strLine,"Usable:") > 0  and instr(strLine,"true") > 0  then
+			isOk = true
+		end if
+	Loop
+	WScript.Sleep 10
+Loop
+if isOk then
+	wscript.echo "OK"
+else
+	wscript.echo "VirtualBox Extension Pack is not installed. Please, download and install it from the official VirtualBox web site. Aborting."
+	wscript.quit 1
+end if
+
 ' Check for ISO image to be available
 wscript.echo "Checking for Fuel Web ISO image... "
 if not objFSO.fileExists (iso_path) then
