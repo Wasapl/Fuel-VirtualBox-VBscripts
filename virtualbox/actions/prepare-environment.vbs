@@ -41,7 +41,7 @@ for each vbPath in lstVBPaths
 next
 if VBoxManagePath = "" then 
 	wscript.echo "'VBoxManage' is not available in the path, but it's required. Likely, VirtualBox is not installed. Aborting."
-	Wscript.Quit
+	Wscript.Quit 1
 else
 	wscript.echo "Ok"
 end If 
@@ -71,7 +71,7 @@ end if
 wscript.echo "Checking for Fuel Web ISO image... "
 if not objFSO.fileExists (iso_path) then
 	wscript.echo "Fuel Web image is not found. Please download it and put under 'iso' directory."
-	Wscript.Quit
+	Wscript.Quit 1
 end if
 wscript.echo "OK"
 
