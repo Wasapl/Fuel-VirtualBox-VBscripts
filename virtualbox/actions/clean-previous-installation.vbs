@@ -33,7 +33,7 @@ for idx = 0 to 2
 	if instr(hostonly_interfaces_ips,host_nic_ip(idx))>0 then
 		wscript.echo "Fatal error. There is already host-only interface with IP address " + host_nic_ip(idx) 
 		wscript.echo "Remove that interface or change value host_nic_ip(" & idx & ") in config.vbs."
-		wscript.quit
+		wscript.quit 1
 	end If 
 next
 

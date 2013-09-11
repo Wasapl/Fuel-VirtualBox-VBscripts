@@ -21,7 +21,7 @@ for idx = 0 to 2
 		wscript.echo "Creation of " & host_nic_name(idx) & " failed several times. "
 		wscript.echo "This may be due to " & host_nic_ip(idx) & " assigned to other interface or its incorrect IP."
 		wscript.echo "Please check interfaces and edit config.vbs."
-		wscript.Quit
+		wscript.Quit 1
 	end if
 	' create_hostonly_interface host_nic_name(idx), host_nic_ip(idx), host_nic_mask(idx)
 	wscript.echo "'" & host_nic_name(idx) & "' created"
