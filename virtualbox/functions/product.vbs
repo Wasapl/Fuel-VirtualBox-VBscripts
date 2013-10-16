@@ -21,21 +21,35 @@ Option Explicit
 Dim objShell
 Set objShell = WScript.CreateObject( "WScript.Shell" )
 
+' use this PlinkPath initialization for debuging vm.vbs only
+' Dim PlinkPath
+' PlinkPath = "..\plink.exe"
 
-function is_product_vm_operational(ip, username, password)
-' Log in into the VM, see if Puppet has completed its run
-' Returns: boolean
-	dim objExec
-	dim arr(2), cmd
+
+function call_plink(cmd, PlinkPath)
+' executes plink.exe with given command.
+' Returns: array, where arr(0) is plink ExitCode
+' 			arr(1) - plink StdOut
+' 			arr(2) - plink StdErr
+	dim objExec, arr(2), strFromProc
 	arr(1) = ""
 	arr(2) = ""
-	is_product_vm_operational = False
-	' we cannot use -batch parameter since plink do not establish connection if server's fingerprint does not match stored ones.
-	cmd =  "plink.exe " + username + "@" + ip + " -pw " + password + " ""grep -o 'Finished catalog run' /var/log/puppet/bootstrap_admin_node.log"""
-	Set objExec = objShell.Exec(cmd)
+	On error Resume Next
+	Set objExec = objShell.Exec(PlinkPath + " " + cmd)
+	if  Err.Number <> 0  then
+		' An exception occurred
+		select case Err.Number
+			case  -2147024894
+				wscript.echo PlinkPath + " was not found"
+			case else
+				wscript.echo "Exception:" & vbCrLf & _
+					"    Error number: " & Err.Number & vbCrLf & _
+					"    Error description: '" & Err.Description & vbCrLf
+		end select
+		wscript.Quit 1
+	end if
 
 	' reading stdout and stderr till plink terminate
-	dim strFromProc
 	Do While objExec.Status = 0
 		' We have trouble here becouse ReadLine() and ReadAll() waits for CR LF as ending of last line of plink error massage.
 		' That is why we write N or Y in stdin right after first line of message came.
@@ -55,21 +69,33 @@ function is_product_vm_operational(ip, username, password)
 			strFromProc = ObjExec.Stdout.ReadLine()
 			arr(1) = arr(1) & strFromProc
 		Loop
-		WScript.Sleep 100
+		WScript.Sleep 10
 	Loop
 	arr(0) = objExec.ExitCode
+	call_plink = arr
+end function
 
-	if arr(0) = 0 then
-		if instr(arr(1),"Finished catalog run") then
+
+function is_product_vm_operational(ip, username, password)
+' Log in into the VM, see if Puppet has completed its run
+' Returns: boolean
+	dim cmd, PlinkRet
+	is_product_vm_operational = False
+	' we cannot use -batch parameter since plink do not establish connection if server's fingerprint does not match stored ones.
+	cmd = username + "@" + ip + " -pw " + password + " ""grep -o 'Finished catalog run' /var/log/puppet/bootstrap_admin_node.log"""
+	PlinkRet = call_plink(cmd, PlinkPath)
+
+	if PlinkRet(0) = 0 then
+		if instr(PlinkRet(1),"Finished catalog run") then
 			is_product_vm_operational = True
 		else
 			wscript.echo "Not finished catalog run"
-			wscript.echo "stdout:" + vbCrLf + arr(1)
+			wscript.echo "stdout:" + vbCrLf + PlinkRet(1)
 		end if
 	else 
-		WScript.Echo "Error occured in command: ExitCode=" & arr(0) & vbCrLf & cmd
-		WScript.Echo "stderr:" + vbCrLf + arr(2)
-		WScript.Echo "stdout:" + vbCrLf + arr(1)
+		WScript.Echo "Error occured in command: ExitCode=" & PlinkRet(0) & vbCrLf & cmd
+		WScript.Echo "stderr:" + vbCrLf + PlinkRet(2)
+		WScript.Echo "stdout:" + vbCrLf + PlinkRet(1)
 	end if
 end Function 
 'wscript.echo is_product_vm_operational ("10.20.0.2", "root", "r00tme")
@@ -92,7 +118,7 @@ function enable_outbound_network_for_product_vm(ip, username, password, interfac
 	' Subtract one to get ethX index (0-based) from the VirtualBox inde1x (from 1 to 4)
 	interface_id = interface_id - 1
 
-	dim cmd, objExec, ret, strLine, nameserver, DnsServer, objRXP
+	dim cmd, objExec, ret, PlinkRet, strLine, nameserver, DnsServer, objRXP
 
 	' Check for internet access on the host system
 	wscript.echo "Checking for internet connectivity on the host system... "
@@ -157,21 +183,17 @@ function enable_outbound_network_for_product_vm(ip, username, password, interfac
 	"for i in 1 2 3 4 5; do ping -c 2 google.com || ping -c 2 wikipedia.com || sleep 2; done"
 
 	' we cannot use -batch parameter since plink do not establish connection if server's fingerprint does not match stored ones.
-	cmd =  "plink.exe " + username + "@" + ip + " -pw " + password + " """ + cmd + """"
-	Set objExec = objShell.Exec(cmd)
+	cmd = username + "@" + ip + " -pw " + password + " """ + cmd + """"
+	PlinkRet = call_plink(cmd, PlinkPath)
 
 	' reading stdout and stderr till plink terminate
 	dim isOk
 	isOk = false
-	Do While objExec.Status = 0
-		Do While Not objExec.StdOut.atEndOfStream
-			strLine = objExec.StdOut.ReadLine()
-			if instr(strLine,"icmp_seq=") > 0 then
-				isOk = true
-			end if
-		Loop
-		WScript.Sleep 10
-	Loop
+	if PlinkRet(0) = 0 then
+		if instr(PlinkRet(1),"icmp_seq=") > 0 then
+			isOk = true
+		end if
+	end if
 
 	if isOk then
 		wscript.echo "OK"
