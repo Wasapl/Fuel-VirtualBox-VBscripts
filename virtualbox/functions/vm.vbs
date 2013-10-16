@@ -27,15 +27,14 @@ function get_vbox_value (strCommand, strParameter)
 ' Inputs: strCommand - VBoxManage.exe command
 '		strParameter - name of parameter exactly from start of line to colon.
 ' Returns: string separated by CR LF.
-	Dim objExec, objMatches, objRXP, strLine, strValue
+	Dim ret, objMatches, objRXP, strLines, strLine, strValue
 
 	Set objRXP = New RegExp : objRXP.Global = True : objRXP.Multiline = False
 	objRXP.Pattern = "^" + strParameter + ":?\s*(.+)$"
 
-	Set objExec = objShell.Exec(VBoxManagePath + " " + strCommand)
-
-	Do
-		strLine = objExec.StdOut.ReadLine()
+	ret = call_VBoxManage(strCommand)
+	strLines = split(ret(1),vbCrLf)
+	for each strLine in strLines
 		set objMatches = objRXP.Execute(strLine) 
 		if objMatches.count > 0 then
 			if isempty(strValue) then
@@ -44,10 +43,8 @@ function get_vbox_value (strCommand, strParameter)
 				strValue = strValue + vbCrLf + objMatches(0).SubMatches(objMatches(0).SubMatches.count-1)
 			end if
 		end if
-	Loop While Not objExec.Stdout.atEndOfStream
-
+	next
 	get_vbox_value = strValue
-	Set objExec = Nothing
 end Function 
 ' WScript.Echo "Value is " + get_vbox_value ("list systemproperties", "Default machine folder")
 ' WScript.Echo "Value is " + get_vbox_value ("list hostonlyifs", "Name")
@@ -64,29 +61,22 @@ function get_vms_list (strCommand)
 ' Reads list of VMs
 ' Inputs: strCommand should be one of strings: "list vms", "list runningvms"
 ' Returns: an array of pairs (VM_name, VM_UUID)
-	Dim objExec, strLine, lstProgID, objMatches , objMatch, objRXP
+	Dim ret, lstProgID, objMatches , objMatch, objRXP
 
 	' get_vms_list = Nothing
 
 	Set objRXP = New RegExp : objRXP.Global = True : objRXP.MultiLine = True
 	objRXP.Pattern = """([^""]+)""\s+({[^}]+})"
 	Set lstProgID = CreateObject( "System.Collections.ArrayList" )
-	
-	Set objExec = objShell.Exec(VBoxManagePath + " " + strCommand)
 
-	strLine = ""
-	Do
-		strLine = strLine + vbCrLf + objExec.StdOut.Readline()
-	Loop While Not objExec.Stdout.atEndOfStream
-	set objMatches = objRXP.Execute(strLine) 
+	ret = call_VBoxManage(strCommand)
+	set objMatches = objRXP.Execute(ret(1)) 
 	if objMatches.count > 0 then
 		for each objMatch in objMatches
 	 		lstProgID.Add objMatch.SubMatches
 		next
 		get_vms_list = lstProgID.ToArray
 	end if
-	
-	Set objExec = Nothing
 end Function 
 ' dim list, str, l
 ' list = get_vms_list ("list vms")
