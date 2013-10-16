@@ -35,16 +35,18 @@ function get_vbox_value (strCommand, strParameter)
 	ret = call_VBoxManage(strCommand)
 	strLines = split(ret(1),vbCrLf)
 	for each strLine in strLines
-		set objMatches = objRXP.Execute(strLine) 
+		set objMatches = objRXP.Execute(strLine)
 		if objMatches.count > 0 then
-			if isempty(strValue) then
-				strValue = objMatches(0).SubMatches(objMatches(0).SubMatches.count-1)
+			' there could be parentheses in strParameter therefore we must catch value this awkward way
+			strValue = objMatches(0).SubMatches(objMatches(0).SubMatches.count-1)
+			if isempty(get_vbox_value) then
+				get_vbox_value = strValue
 			else
-				strValue = strValue + vbCrLf + objMatches(0).SubMatches(objMatches(0).SubMatches.count-1)
+				get_vbox_value = get_vbox_value + vbCrLf + strValue
 			end if
 		end if
 	next
-	get_vbox_value = strValue
+	'get_vbox_value = strValue
 end Function 
 ' WScript.Echo "Value is " + get_vbox_value ("list systemproperties", "Default machine folder")
 ' WScript.Echo "Value is " + get_vbox_value ("list hostonlyifs", "Name")
