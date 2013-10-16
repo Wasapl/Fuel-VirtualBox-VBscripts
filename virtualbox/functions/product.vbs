@@ -92,7 +92,7 @@ function enable_outbound_network_for_product_vm(ip, username, password, interfac
 	' Subtract one to get ethX index (0-based) from the VirtualBox inde1x (from 1 to 4)
 	interface_id = interface_id - 1
 
-	dim cmd, objExec, ret, strLine, nameserver, DnsServer
+	dim cmd, objExec, ret, strLine, nameserver, DnsServer, objRXP
 
 	' Check for internet access on the host system
 	wscript.echo "Checking for internet connectivity on the host system... "
@@ -125,15 +125,17 @@ function enable_outbound_network_for_product_vm(ip, username, password, interfac
 	' Check host nameserver configuration
 	wscript.echo "Checking local DNS configuration... "
 	cmd = "netsh interface ip show dns"
+	Set objRXP = New RegExp : objRXP.Global = True : objRXP.Multiline = False
+	objRXP.Pattern = "[0-9\.]+"
 	set objExec = objShell.Exec(cmd)
 	nameserver = ""
 	Do While objExec.Status = 0
 		Do While Not objExec.StdOut.atEndOfStream
 			strLine = objExec.StdOut.ReadLine()
 			if instr(strLine,"DNS") > 0 then
-				 DnsServer = trim(right(strLine,len(strLine)-instr(strLine,":")))
-				if DnsServer <> "None" then
-					nameserver = "nameserver " + DnsServer + vbCrLf
+				DnsServer = trim(right(strLine,len(strLine)-instr(strLine,":")))
+				if objRXP.Execute(DnsServer).count > 0 then
+					nameserver = nameserver + "nameserver " + DnsServer + vbCrLf
 				end if
 			end if
 		Loop
