@@ -25,7 +25,6 @@ lstVBPaths.Add """C:\Program Files (x86)\VirtualBox\VBoxManage.exe"""
 lstVBPaths.Add """C:\Program Files\VirtualBox\VBoxManage.exe"""
 lstVBPaths.Add """C:\Program Files\Oracle\VirtualBox\VBoxManage.exe"""
 lstVBPaths.Add "VBoxManage.exe"
-
 ' reading Vbox install dir from Windows registry
 Const HKEY_LOCAL_MACHINE  = &H80000002
 ' Connect to registry provider on target machine with current user
@@ -45,6 +44,7 @@ if VBoxManagePath = "" then
 else
 	wscript.echo "Ok"
 end If 
+
 
 ' Check for VirtualBox Extension Pack
 wscript.echo "Checking for VirtualBox Extension Pack... "
@@ -67,6 +67,7 @@ else
 	wscript.quit 1
 end if
 
+
 ' Check for ISO image to be available
 wscript.echo "Checking for Fuel Web ISO image... "
 if not objFSO.fileExists (iso_path) then
@@ -75,3 +76,22 @@ if not objFSO.fileExists (iso_path) then
 end if
 wscript.echo "OK"
 
+
+' Check for plink.exe
+wscript.echo "Checking for 'plink.exe'... "
+PlinkPath = ""
+Set lstPlinkPaths = CreateObject( "System.Collections.ArrayList" )
+lstPlinkPaths.Add "plink.exe"
+lstPlinkPaths.Add "..\plink.exe"
+for each path in lstPlinkPaths
+	if objFSO.fileExists (strip_quotes(path)) then
+		PlinkPath = path
+	end if
+next
+
+if VBoxManagePath = "" then 
+	wscript.echo "'plink.exe' is not available in the path, but it's required. Please put plink.exe in current directory."
+	Wscript.Quit 1
+else
+	wscript.echo "Ok"
+end If 
