@@ -23,17 +23,27 @@
 Sub Import(strFile)
 	Dim objFS, objFile, strCode
 	Set objFS = CreateObject("Scripting.FileSystemObject")
+	if not objFS.fileExists(strFile) then
+		if not objFS.fileExists(objFS.BuildPath("..", strFile)) then
+			wscript.echo "Module " & strFile & " not found. Aborting."
+			Wscript.Quit 1
+		else
+			strFile = objFS.BuildPath("..", strFile)
+		end if 
+	end if
 	Set objFile = objFS.OpenTextFile(strFile)
 	strCode = objFile.ReadAll
 	objFile.Close
 	ExecuteGlobal strCode
 End Sub
-Import "..\functions\vm.vbs"
-Import "..\functions\product.vbs"
-Import "..\config.vbs"
+Import "functions\vm.vbs"
+Import "functions\product.vbs"
+Import "functions\utils.vbs"
+Import "config.vbs"
 
 ' Master node name
 name = vm_name_prefix + "master"
 
 ' Enable outbound network/internet access for the machine
+wscript.echo "Enable outbound network/internet access for master node"
 enable_outbound_network_for_product_vm vm_master_ip, vm_master_username, vm_master_password, 3, vm_master_nat_gateway
