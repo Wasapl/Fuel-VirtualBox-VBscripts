@@ -58,6 +58,7 @@ function get_first_file(strFolder,strFileExtention)
 ' Returns: string filename
 	get_first_file = ""
 	dim objFiles, objFile
+	On error resume next
 	Set objFiles = CreateObject("Scripting.FileSystemObject").Getfolder(strFolder).Files
 	for each objFile in objFiles
 		if Right(objFile.name,len(strFileExtention)) = strFileExtention then
@@ -65,5 +66,6 @@ function get_first_file(strFolder,strFileExtention)
 			exit for
 		end if 
 	next
+	on error goto 0
 end Function
 'wscript.echo get_first_file("..\iso\","iso")
