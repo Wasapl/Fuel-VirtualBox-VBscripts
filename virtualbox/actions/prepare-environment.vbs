@@ -79,18 +79,8 @@ wscript.echo "OK"
 
 ' Check for plink.exe
 wscript.echo "Checking for 'plink.exe'... "
-PlinkPath = ""
-Set lstPlinkPaths = CreateObject( "System.Collections.ArrayList" )
-lstPlinkPaths.Add "plink.exe"
-lstPlinkPaths.Add "..\plink.exe"
-for each path in lstPlinkPaths
-	if objFSO.fileExists (strip_quotes(path)) then
-		PlinkPath = path
-	end if
-next
-
-if VBoxManagePath = "" then 
-	wscript.echo "'plink.exe' is not available in the path, but it's required. Please put plink.exe in current directory."
+if check_plink() = "" then 
+	wscript.echo "'plink.exe' is not available in the path, but it's required. Please put plink.exe in current working directory."
 	Wscript.Quit 1
 else
 	wscript.echo "Ok"
