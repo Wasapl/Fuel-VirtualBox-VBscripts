@@ -21,11 +21,6 @@ Option Explicit
 Dim objShell
 Set objShell = WScript.CreateObject( "WScript.Shell" )
 
-' use this PlinkPath initialization for debuging vm.vbs only
-' Dim PlinkPath
-' PlinkPath = "..\plink.exe"
-
-
 function call_plink(cmd, PlinkPath)
 ' executes plink.exe with given command.
 ' Returns: array, where arr(0) is plink ExitCode
@@ -83,7 +78,7 @@ function is_product_vm_operational(ip, username, password)
 	is_product_vm_operational = False
 	' we cannot use -batch parameter since plink do not establish connection if server's fingerprint does not match stored ones.
 	cmd = username + "@" + ip + " -pw " + password + " ""grep -o 'Finished catalog run' /var/log/puppet/bootstrap_admin_node.log"""
-	PlinkRet = call_plink(cmd, PlinkPath)
+	PlinkRet = call_plink(cmd, check_plink())
 
 	if PlinkRet(0) = 0 then
 		if instr(PlinkRet(1),"Finished catalog run") then
@@ -184,7 +179,7 @@ function enable_outbound_network_for_product_vm(ip, username, password, interfac
 
 	' we cannot use -batch parameter since plink do not establish connection if server's fingerprint does not match stored ones.
 	cmd = username + "@" + ip + " -pw " + password + " """ + cmd + """"
-	PlinkRet = call_plink(cmd, PlinkPath)
+	PlinkRet = call_plink(cmd, check_plink())
 
 	' reading stdout and stderr till plink terminate
 	dim isOk
@@ -206,6 +201,19 @@ function enable_outbound_network_for_product_vm(ip, username, password, interfac
 end function
 ' enable_outbound_network_for_product_vm "10.20.0.2", "root", "r00tme", 3, "192.168.200.2"
 
+function check_plink()
+	Dim lstPlinkPaths, path
+	Set lstPlinkPaths = CreateObject( "System.Collections.ArrayList" )
+	lstPlinkPaths.Add "plink.exe"
+	lstPlinkPaths.Add "..\plink.exe"
+	for each path in lstPlinkPaths
+		if objFSO.fileExists (strip_quotes(path)) then
+			check_plink = path
+			exit function
+		end if
+	next
+	check_plink = ""
+end function
 
 function print_no_internet_connectivity_banner()
 
