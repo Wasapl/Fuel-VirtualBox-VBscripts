@@ -43,6 +43,7 @@ function call_plink(cmd, PlinkPath)
 		end select
 		wscript.Quit 1
 	end if
+	On error goto 0
 
 	' reading stdout and stderr till plink terminate
 	Do While objExec.Status = 0
