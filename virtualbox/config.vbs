@@ -19,7 +19,7 @@
 cluster_size=3
 
 ' Get the first available ISO from the directory 'iso'
-iso_path=get_first_file("iso", "iso")
+iso_path=get_recent_file("iso", "iso")
 ' Every Fuel Web machine name will start from this prefix  
 vm_name_prefix="fuel-web-"
 
