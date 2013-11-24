@@ -56,7 +56,7 @@ end function
 function get_recent_file(strFolder,strFileExtention)
 ' Open strFolder and search for most recent file with extention strFileExtention
 ' Returns: string filename
-	get_first_file = ""
+	get_recent_file = ""
 	dim objFiles, objFile, maxDate
 	On error resume next
 	Set objFiles = CreateObject("Scripting.FileSystemObject").Getfolder(strFolder).Files
@@ -64,10 +64,10 @@ function get_recent_file(strFolder,strFileExtention)
 		if Right(objFile.name,len(strFileExtention)) = strFileExtention then
 			if isempty(maxDate) or maxDate < objFile.DateCreated then
 				maxDate = objFile.DateCreated
-				get_first_file = strFolder & "\" & objFile.name
+				get_recent_file = strFolder & "\" & objFile.name
 			end if
 		end if 
 	next
 	on error goto 0
 end Function
-'wscript.echo get_first_file("..\iso\","iso")
+'wscript.echo get_recent_file("..\iso\","iso")
