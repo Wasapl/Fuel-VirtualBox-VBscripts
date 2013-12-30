@@ -32,11 +32,11 @@ host_nic_ip(0) = "10.20.0.1"
 host_nic_mask(0) = "255.255.255.0"
 
 host_nic_name(1)="VirtualBox Host-Only Ethernet Adapter #3"
-host_nic_ip(1) = "172.16.1.1"
+host_nic_ip(1) = "172.16.0.1"
 host_nic_mask(1) = "255.255.255.0"
 
 host_nic_name(2)="VirtualBox Host-Only Ethernet Adapter #4"
-host_nic_ip(2) = "172.16.0.1"
+host_nic_ip(2) = "172.16.1.1"
 host_nic_mask(2) = "255.255.255.0"
 
 ' Master node settings
@@ -62,11 +62,13 @@ vm_slave_cpu_cores=1
 ' This section allows you to define RAM size in MB for each slave node.
 ' Keep in mind that PXE boot might not work correctly with values lower than 768.
 ' You can specify memory size for the specific slaves, other will get default vm_slave_memory_default
-vm_slave_memory_default = 768
+vm_slave_memory_default = 1024
 redim vm_slave_memory_mb(3)
-vm_slave_memory_mb(1) = 768   ' for controller node 768 MB should be sufficient
-vm_slave_memory_mb(2) = 1024  ' for compute node 1GB is recommended, otherwise VM instances in OpenStack may not boot
-vm_slave_memory_mb(3) = 768   ' for a dedicated Cinder node 768 MB should be sufficient
+' for controller node at least 1.5Gb is required if you also run Ceph and Heat on it
+' and for Ubuntu controller we need 2Gb of ram
+vm_slave_memory_mb(1) = 2048
+vm_slave_memory_mb(2) = 1024   ' for compute node 1GB is recommended, otherwise VM instances in OpenStack may not boot
+vm_slave_memory_mb(3) = 1024   ' for dedicated Cinder, 768Mb is OK, but Ceph needs 1Gb minimum
 
 ' Within demo cluster created by this script, all slaves (controller
 ' and compute nodes) will have identical disk configuration. Each 
@@ -74,6 +76,6 @@ vm_slave_memory_mb(3) = 768   ' for a dedicated Cinder node 768 MB should be suf
 ' dialog you will be able to allocate the whole disk or it's part for
 ' operating system (Base OS), VMs (Virtual Storage), Ceph or other function,
 ' depending on the roles applied to the server.
-vm_slave_first_disk_mb=16384
-vm_slave_second_disk_mb=32768
+vm_slave_first_disk_mb=65536
+vm_slave_second_disk_mb=65536
 vm_slave_third_disk_mb=65536
