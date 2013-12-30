@@ -20,8 +20,8 @@ cluster_size=3
 
 ' Get the first available ISO from the directory 'iso'
 iso_path=get_recent_file("iso", "iso")
-' Every Fuel Web machine name will start from this prefix  
-vm_name_prefix="fuel-web-"
+' Every Mirantis OpenStack machine name will start from this prefix
+vm_name_prefix="fuel-"
 
 ' Host interfaces to bridge VMs interfaces with
 ' One cannot name host-only interfaces in Windows. So parameters 'host_nic_name(x)' will be rewrited after creating interface.

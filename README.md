@@ -1,20 +1,20 @@
 Fuel-VirtualBox-VBscripts
 ============================
 
-Scripts helps you to deploy Fuel 3.1 and OpenStack PoC on VirtualBox for Windows.
+Scripts helps you to deploy Mirantis OpenStack on VirtualBox for Windows.
 It works using a host machine with a minimum of 8GB of RAM, but 16GB works better. 
-See http://fuel.mirantis.com for additional information.
+See http://software.mirantis.com/ for additional information.
 
 Scripts does folowing:
  1.  configure VirtualBox environment according to config.vbs
- 2.  create Fuel Master VM and mount fuel ISO in it
+ 2.  create Fuel Master VM and mount Mirantis OpenStack ISO in it
  3.  wait for finish of Fuel install
  4.  configure Master VM to access internet via VirtualBox NAT adapter
  5.  create and run slave VMs
 
-In order to successfully run Fuel under VirtualBox, you need to:
+In order to successfully run Mirantis OpenStack under VirtualBox, you need to:
  1.  install latest version of *VirtualBox* for windows and install VirtualBox *Extension Pack*
- 2.  download the Fuel official release (.iso) and place it under 'iso' directory
+ 2.  download the Mirantis OpenStack official release (.iso) and place it under 'iso' directory
  3.  edit `./config.vbs`
  4.  run `cscript ./launch.vbs`. It will automatically pick up the iso, and will spin up master node and slave nodes.
 
@@ -26,10 +26,10 @@ If you want to change settings (number of OpenStack nodes, CPU, RAM, HDD), pleas
 
 1.  In *functions* directory there is a vbscript modules with functions to comunicate with VirtualBox. 
 You can use this functions in your own scripts.
-2.  In *actions* directory there is scripts performing preparing VirtualBox environment and creating VMs for Fuel.
-3.  In *iso* directory you should put Fuel.iso file.
+2.  In *actions* directory there is scripts performing preparing VirtualBox environment and creating VMs for Mirantis OpenStack.
+3.  In *iso* directory you should put MirantisOpenStack.iso file.
 4.  `launch.vbs` is the main script which executes actions in particular order to deploy Fuel.
-5.  `config.vbs` initialazes variables that shapes Fuel VMs. Please look it through before running `launch.vbs`
+5.  `config.vbs` initialazes variables that shapes VMs. Please look it through before running `launch.vbs`
 
 If you need only part of all actions to be done comment unnecessary actions in `launch.vbs`. 
 For example you have already configured VirtualBox, network interfaces and installed master node. 

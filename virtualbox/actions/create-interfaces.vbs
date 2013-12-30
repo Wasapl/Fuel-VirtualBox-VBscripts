@@ -12,7 +12,7 @@
 '    License for the specific language governing permissions and limitations
 '    under the License.
 
-' This script creates host-only interfaces for Fuel Web
+' This script creates host-only interfaces for Mirantis OpenStack
 ' it does nothing if interface exists already
 
 

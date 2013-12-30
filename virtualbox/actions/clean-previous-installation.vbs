@@ -12,10 +12,10 @@
 '    License for the specific language governing permissions and limitations
 '    under the License.
 
-' This script check that there is no previous installation of Fuel Web (if there is one, the script deletes it)
+' This script check that there is no previous installation of Mirantis OpenStack (if there is one, the script deletes it)
 
 
-' Delete all VMs from the previous Fuel Web installation
+' Delete all VMs from the previous Mirantis OpenStack installation
 delete_vms_multiple vm_name_prefix
 
 ' Delete all host-only interfaces

@@ -69,9 +69,9 @@ end if
 
 
 ' Check for ISO image to be available
-wscript.echo "Checking for Fuel Web ISO image... "
+wscript.echo "Checking for Mirantis OpenStack ISO image... "
 if not objFSO.fileExists (iso_path) then
-	wscript.echo "Fuel Web image is not found. Please download it and put under 'iso' directory."
+	wscript.echo "Mirantis OpenStack image is not found. Please download it and put under 'iso' directory."
 	Wscript.Quit 1
 end if
 wscript.echo "OK"
